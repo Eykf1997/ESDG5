@@ -1,0 +1,11 @@
+create schema loginDB2;
+use loginDB2;
+
+create table login(
+username varchar(20),
+password varchar(20),
+account_type varchar(2),
+customer_id int,
+admin_id int,
+constraint login_pk PRIMARY KEY (username)
+)
