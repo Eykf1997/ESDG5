@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+
+    <title>Bouquet</title>
+
+    <link rel="stylesheet" href="">
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!-- Bootstrap libraries -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css'
+        rel='stylesheet'
+        integrity='sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC'
+        crossorigin='anonymous'>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+</head>
+
+<body>
+  <div id="myChart" class="container" style="width:100%; max-width:750px; height:600px;"></div>
+  <label id="error" class="text-danger"></label>
+
+  <div id="main-container" class="container">
+    <h1 class="display-4">Bouquet Listing</h1>
+    <table class='table table-striped border-1'>
+        <thead class='table-dark'>
+            <tr>
+                <th>ID</th>
+                <th>Bouquet</th>
+                <th>Quantity</th>
+                <th>Price ($)</th>
+                <th>Details</th>
+                <th>Expiry Date</th>
+            </tr>
+        </thead>
+        <tbody id="bouquetTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    //Helper function to display error message
+    function showError(message) {
+      // Display an error under the main container
+      $('#main-container')
+      .append("<label>" + message + "</label>");
+    }
+
+    // annonymous async function - using await requires the function that calls it to be async
+    $(async () => {
+      //serviceURL
+      var serviceURL = 'http://127.0.0.1:5000/inventory';
+
+      try {
+        const response = await fetch(
+          serviceURL, {mode: 'cors', method: 'GET'}
+        );
+        const result = await response.json();
+        if (response.status === 200) {
+          // success case
+          var inventory = result.data.inventory; //array is in inventory within data of the returned result
+
+          // generate google chart
+          google.charts.load('current', {'packages':['corechart']});
+          google.charts.setOnLoadCallback(drawChart);
+          
+          function drawChart() {
+            var data_title = [['Bouquet', 'Quantity']]
+            
+            // database item_name, quantity
+            for (const flower of inventory){
+              data_title.push([flower.Item_Name, parseInt(flower.Quantity)])
+            }
+
+            console.log(data_title)
+            var data = google.visualization.arrayToDataTable(
+              data_title)
+            
+            var options = {
+              title:'Inventory Bouquet Stocks'
+            };
+      
+            var chart = new google.visualization.BarChart(document.getElementById('myChart'));
+              chart.draw(data, options);
+          }
+
+          const d = new Date();
+          //console.log(d.toISOString().split('T'))
+          actualDate = d.toISOString().split('T')[0]
+          console.log(actualDate)
+
+
+          // for loop to setup all tables rows with obtained bouquet data
+          var rows = "";
+          for (const bouquet of inventory) {
+            eachRow =
+              "<td>" + bouquet.Item_Id + "</td>" +
+              "<td>" + bouquet.Item_Name + "</td>" +
+              "<td>" + bouquet.Quantity + "</td>" +
+              "<td>" + bouquet.Price + "</td>" +       
+              "<td>" + bouquet.Details + "</td>" +
+              "<td>" + bouquet.Expiry_Date + "</td>" ;
+            rows += "<tr>" + eachRow + "</tr>";
+            }
+            // add all the rows to the table
+            $('#bouquetTable').append(rows);
+
+            
+
+
+        } else if (response.status == 404) {
+            // No books
+            showError
+                (result.message);
+        } else {
+            // unexpected outcome, throw the error
+            throw response.status;
+        }
+
+        } catch (error) {
+        // Errors when calling the service; such as network error, 
+        // service offline, etc
+        showError
+            ('There is a problem retrieving bouquet data, please try again later.<br />' + error);
+
+        } // error
+    })
+  </script>
+  
+</body>
+</html>
+
+
+
