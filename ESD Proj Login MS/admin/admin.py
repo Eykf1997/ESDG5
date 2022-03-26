@@ -9,12 +9,13 @@ db = SQLAlchemy(app)
  
 class Admin(db.Model):
     __tablename__ = 'admin'
-
-    admin_id = db.Column(db.Integer, primary_key = True)
+# change primary key to email
+# set admin_id to auto_increment
+    admin_id = db.Column(db.Integer, autoincrement = True, primary_key = True)
     name = db.Column(db.String(40))
     email = db.Column(db.String(40))
 
-    def __init__(self, admin_id, name, email):
+    def __init__(self, email, name, admin_id=None):
         self.admin_id = admin_id
         self.name = name
         self.email = email
@@ -24,19 +25,11 @@ class Admin(db.Model):
     
 
  
-    
-# according to adminDB.sql information 
-#admin_id int auto_increment,
-#name varchar(40),
-#email varchar(40),
-#constraint admin_pk primary key(admin_id));
-#insert into admin(name, email) values('jun', 'jun@gmail.com');
-#GRANT REFERENCES ON adminDB.admin TO loginDB;-- 
- 
 @app.route("/admin")
 def get_all():
 # copy the code to get all admin from book.py 
     admin_list = Admin.query.all()
+    print(admin_list)
     if len(admin_list):
         return jsonify(
             {
@@ -54,10 +47,10 @@ def get_all():
     ), 404
 
  
-@app.route("/admin/<int:admin_id>")
-def find_by_admin_id(admin_id):
+@app.route("/admin/<string:email>")
+def find_by_email(email):
 # copy the code to get admin by id from book.py  
-    admin = Admin.query.filter_by(admin_id=admin_id).first()
+    admin = Admin.query.filter_by(email=email).first()
     if admin:
         return jsonify(
             {
@@ -73,23 +66,23 @@ def find_by_admin_id(admin_id):
     ), 404   
 
  
-@app.route("/admin/<int:admin_id>", methods=['POST'])
-def create_admin_id(admin_id):
+@app.route("/admin/<string:email>", methods=['POST'])
+def create_admin(email):
 # copy the code to create admin from book.py 
-    if (Admin.query.filter_by(admin_id=admin_id).first()):
+    if (Admin.query.filter_by(email=email).first()):
         return jsonify(
             {
                 "code": 400,
                 "data": {
-                    "admin_id": admin_id
+                    "email": email
                 },
                 "message": "Admin already exists."
             }
         ), 400
 
     data = request.get_json()
-    admin = Admin(admin_id, **data)
-
+    admin = Admin(email, **data)
+    print(admin)
     try:
         db.session.add(admin)
         db.session.commit()
@@ -98,7 +91,7 @@ def create_admin_id(admin_id):
             {
                 "code": 500,
                 "data": {
-                    "admin_id": admin_id
+                    "email": email
                 },
                 "message": "An error occurred creating the admin."
             }
@@ -111,15 +104,17 @@ def create_admin_id(admin_id):
         }
     ), 201
 
-@app.route("/admin/<int:admin_id>", methods=['PUT'])
-def update_admin(admin_id):
-    admin = Admin.query.filter_by(admin_id=admin_id).first()
+@app.route("/admin/<string:email>", methods=['PUT'])
+def update_admin(email):
+    admin = Admin.query.filter_by(email=email).first()
+    print(admin)
     if admin:
         data = request.get_json()
-        if data['name']:
+        print(data)
+        if "name" in data:
             admin.name = data['name']
-        if data['email']:
-            admin.email = data['email'] 
+        if "admin_id" in data:
+            admin.admin_id = data['admin_id']
         db.session.commit()
         return jsonify(
             {
@@ -131,15 +126,15 @@ def update_admin(admin_id):
         {
             "code": 404,
             "data": {
-                "admin_id": admin_id
+                "email": email
             },
             "message": "Admin not found."
         }
     ), 404
 
-@app.route("/admin/<int:admin_id>", methods=['DELETE'])
-def delete_admin(admin_id):
-    admin = Admin.query.filter_by(admin_id=admin_id).first()
+@app.route("/admin/<string:email>", methods=['DELETE'])
+def delete_admin(email):
+    admin = Admin.query.filter_by(email=email).first()
     if admin:
         db.session.delete(admin)
         db.session.commit()
@@ -147,7 +142,7 @@ def delete_admin(admin_id):
             {
                 "code": 200,
                 "data": {
-                    "admin_id": admin_id
+                    "email": email
                 }
             }
         )
@@ -155,7 +150,7 @@ def delete_admin(admin_id):
         {
             "code": 404,
             "data": {
-                "admin_id": admin_id
+                "email": email
             },
             "message": "Admin not found."
         }

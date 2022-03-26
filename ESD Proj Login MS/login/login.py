@@ -15,7 +15,7 @@ class Login(db.Model):
     customer_id = db.Column(db.Integer)
     admin_id = db.Column(db.Integer)
 
-    def __init__(self, username, password, customer_id, admin_id):
+    def __init__(self, username, password, customer_id = None, admin_id = None):
         self.admin_id = admin_id
         self.username = username
         self.password = password
@@ -24,17 +24,7 @@ class Login(db.Model):
     def json(self):
         return {"admin_id": self.admin_id, "username": self.username, "password": self.password, "customer_id": self.customer_id}
  
-    
-#according to loginDB.sql information 
-#username varchar (20)                      done, 
-#password varchar(20)                       done,
-#account_type varchar(2),                   done,
-#customer_id int                            done,
-#admin_id int                               done,
-#constraint login_pk PRIMARY KEY (username),
-#constraint login_fk1 foreign key (customer_id) references customerDB.customer (customer_id),
-#constraint login_fk2 foreign key (admin_id) references adminDB.admin (admin_id)
-#);
+
  
 @app.route("/login")
 def get_all():
@@ -60,6 +50,7 @@ def get_all():
 def find_by_username(username):
     login = Login.query.filter_by(username=username).first()
     if login:
+        print(login.admin_id, login.customer_id)
         return jsonify(
             {
                 "code": 200,
@@ -116,11 +107,11 @@ def update_login(username):
     login = Login.query.filter_by(username=username).first()
     if login:
         data = request.get_json()
-        if data['password']:
+        if "password" in data:
             login.password = data['password']
-        if data['customer_id']:
+        if "customer_id" in data:
             login.customer_id = data['customer_id'] 
-        if data['admin_id']:
+        if "admin_id" in data:
             login.admin_id = data['admin_id'] 
         db.session.commit()
         return jsonify(

@@ -9,12 +9,13 @@ db = SQLAlchemy(app)
  
 class Customer(db.Model):
     __tablename__ = 'customer'
-
-    customer_id = db.Column(db.Integer, primary_key = True)
+# change primary key to email
+# set customer_id to auto_increment
+    customer_id = db.Column(db.Integer, autoincrement = True, primary_key = True)
     name = db.Column(db.String(40))
     email = db.Column(db.String(40))
 
-    def __init__(self, customer_id, name, email):
+    def __init__(self,email, name, customer_id = None):
         self.customer_id = customer_id
         self.name = name
         self.email = email
@@ -22,16 +23,7 @@ class Customer(db.Model):
     def json(self):
         return {"customer_id": self.customer_id, "name": self.name, "email": self.email}    
 
- 
-    
-#according to customerDB.sql information 
-#create table customer(
-#customer_id int auto_increment,
-#name varchar(40),
-#email varchar(40),
-#constraint customer_pk primary key (customer_id));
-#insert into customer(name, email) values('may', 'may@gmail.com');
-#GRANT REFERENCES ON customerDB.customer TO loginDB;
+
  
 @app.route("/customer")
 def get_all():
@@ -53,9 +45,9 @@ def get_all():
     ), 404
 
  
-@app.route("/customer/<int:customer_id>")
-def find_by_customer_id(customer_id):
-    customer = Customer.query.filter_by(customer_id=customer_id).first()
+@app.route("/customer/<string:email>")
+def find_by_email(email):
+    customer = Customer.query.filter_by(email=email).first()
     if customer:
         return jsonify(
             {
@@ -70,21 +62,21 @@ def find_by_customer_id(customer_id):
         }
     ), 404      
  
-@app.route("/customer/<int:customer_id>", methods=['POST'])
-def create_customer_id(customer_id):
-    if (Customer.query.filter_by(customer_id=customer_id).first()):
+@app.route("/customer/<string:email>", methods=['POST'])
+def create_email(email):
+    if (Customer.query.filter_by(email=email).first()):
         return jsonify(
             {
                 "code": 400,
                 "data": {
-                    "customer_id": customer_id
+                    "email": email
                 },
                 "message": "Customer already exists."
             }
         ), 400
 
     data = request.get_json()
-    customer = Customer(customer_id, **data)
+    customer = Customer(email, **data)
 
     try:
         db.session.add(customer)
@@ -94,7 +86,7 @@ def create_customer_id(customer_id):
             {
                 "code": 500,
                 "data": {
-                    "customer_id": customer_id
+                    "email": email
                 },
                 "message": "An error occurred creating the customer."
             }
@@ -107,15 +99,15 @@ def create_customer_id(customer_id):
         }
     ), 201
 
-@app.route("/customer/<int:customer_id>", methods=['PUT'])
-def update_customer(customer_id):
-    customer = Customer.query.filter_by(customer_id=customer_id).first()
+@app.route("/customer/<string:email>", methods=['PUT'])
+def update_customer(email):
+    customer = Customer.query.filter_by(email=email).first()
     if customer:
         data = request.get_json()
-        if data['name']:
+        if "name" in data:
             customer.name = data['name']
-        if data['email']:
-            customer.email = data['email'] 
+        if "customer_id" in data:
+            customer.customer_id = data['customer_id'] 
         db.session.commit()
         return jsonify(
             {
@@ -127,15 +119,15 @@ def update_customer(customer_id):
         {
             "code": 404,
             "data": {
-                "customer_id": customer_id
+                "email": email
             },
             "message": "Customer not found."
         }
     ), 404
 
-@app.route("/customer/<int:customer_id>", methods=['DELETE'])
-def delete_customer(customer_id):
-    customer = Customer.query.filter_by(customer_id=customer_id).first()
+@app.route("/customer/<string:email>", methods=['DELETE'])
+def delete_customer(email):
+    customer = Customer.query.filter_by(email=email).first()
     if customer:
         db.session.delete(customer)
         db.session.commit()
@@ -143,7 +135,7 @@ def delete_customer(customer_id):
             {
                 "code": 200,
                 "data": {
-                    "customer_id": customer_id
+                    "email": email
                 }
             }
         )
@@ -151,7 +143,7 @@ def delete_customer(customer_id):
         {
             "code": 404,
             "data": {
-                "customer_id": customer_id
+                "email": email
             },
             "message": "Customer not found."
         }
