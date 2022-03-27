@@ -1,11 +1,14 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/loginDB'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
  
 db = SQLAlchemy(app)
+
+CORS(app) 
  
 class Login(db.Model):
     __tablename__ = 'login'
@@ -50,7 +53,6 @@ def get_all():
 def find_by_username(username):
     login = Login.query.filter_by(username=username).first()
     if login:
-        print(login.admin_id, login.customer_id)
         return jsonify(
             {
                 "code": 200,
@@ -98,7 +100,7 @@ def create_username(username):
     return jsonify(
         {   
             "code": 201,
-            "data": username
+            "data": login.json()
         }
     ), 201
 
@@ -109,10 +111,11 @@ def update_login(username):
         data = request.get_json()
         if "password" in data:
             login.password = data['password']
-        if "customer_id" in data:
-            login.customer_id = data['customer_id'] 
-        if "admin_id" in data:
-            login.admin_id = data['admin_id'] 
+        # Commented this out because shouldnt be able to modify the customer_id and admin_id, doesnt make sense
+        # if "customer_id" in data:
+        #     login.customer_id = data['customer_id'] 
+        # if "admin_id" in data:
+        #     login.admin_id = data['admin_id'] 
         db.session.commit()
         return jsonify(
             {
