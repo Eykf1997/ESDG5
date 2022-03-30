@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Lilas Blooms</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+    crossorigin="anonymous">
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet">
+    <!-- <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script> -->
+    <!-- Custom styles for this template -->
+    <link href="{{ url_for('static', filename='narrow-jumbotron.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="../static/style.css">
+  </head>
+
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+  
+          <div class="col">
+              <div class="custom_jumbotron p-5 text-center">
+                  L I L A S&nbsp; B L O O M S
+              </div>
+          </div>
+      </div> <!-- jumbotron -->
+  
+      <div class="row">
+          <!-- menu -->
+          <div class="col">
+              <ul class="nav"> ​
+                  <li class="nav-item">
+                      <a class="nav-link active text-dark" href="index.html">Home</a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link text-dark" href="profiles.html">Profiles</a>
+                  </li>
+                  <!-- <li class="nav-item">
+                      <a class="nav-link text-dark"
+                          href="https://www.youtube.com/channel/UCOmHUn--16B90oW2L6FRR3A"
+                          target="_blank">
+                          <img src="img/youtube.png" alt="">
+                      </a>
+                  </li> -->
+                  <!-- <li class="nav-item">
+                      <a class="nav-link text-dark"
+                          href="https://www.instagram.com/blackpinkofficial/" target="_blank">
+                          <img src="img/ig.png" alt="">
+                      </a>
+                  </li> -->
+              </ul>​
+          </div>
+      </div> <!-- menu -->
+
+
+    <!-- <div class="container">
+      <div class="header clearfix">
+        <nav>
+          <ul class="nav nav-pills float-right">
+            <li class="nav-item">
+              <a class="nav-link active" href="{{ url_for('index') }}">Home <span class="sr-only">(current)</span></a>
+            </li>
+          </ul>
+        </nav>
+        <h3 class="text-muted">Store</h3>
+      </div> -->
+
+      <div class="row text-center mx-auto">
+        <!-- row carousel -->
+        <div class="col-2"></div>
+          <div class="card col" style="width: 18rem;">
+            <img src="../static/img/pink.PNG" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">Assorted Pink</h5>
+              <p class="card-text">On Wednesdays we wear pink </p>
+
+              <div class="row">
+                <div class="col">
+                  <form method="POST" action="/stripe_pay">
+                <div class="input-group">
+                  <!-- <span class="input-group-btn"> -->
+                  <button type="button" class="quantity-left-minus btn btn-danger btn-number rounded"  data-type="minus" data-field="">-</button>
+                  <input type="text" id="quantity" name="quantity" class="form-control input-number" disabled value="1" min="1" max="100">
+                  <!-- <span class="input-group-btn"> -->
+                  <button type="button" class="quantity-right-plus btn btn-success btn-number rounded"  data-type="plus" data-field="">+</button>
+                  <div class="col"><a href="#" class="btn btn-primary buy_now_btn"  id="Pink" type="submit">Buy Now</a></div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- <div class="col-2"></div> -->
+          <div class="card col" style="width: 18rem;">
+            <img src="../static/img/roses.PNG" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">Roses</h5>
+              <p class="card-text">The perfect Valentine's Day gift </p>
+
+              <div class="row">
+                <div class="col">
+                  <form method="POST" action="/stripe_pay">
+                <div class="input-group">
+                  <!-- <span class="input-group-btn"> -->
+                  <button type="button" class="quantity-left-minus btn btn-danger btn-number rounded"  data-type="minus" data-field="">-</button>
+                  <input type="text" id="quantity" name="quantity" class="form-control input-number" disabled value="1" min="1" max="100">
+                  <!-- <span class="input-group-btn"> -->
+                  <button type="button" class="quantity-right-plus btn btn-success btn-number rounded"  data-type="plus" data-field="">+</button>
+                  <div class="col"><a href="#" class="btn btn-primary buy_now_btn" id="Roses" type="submit">Buy Now</a></div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- <div class="col-2"></div> -->
+          <div class="card col" style="width: 18rem;">
+            <img src="../static/img/sunflower.jpg" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">Sunflower</h5>
+              <p class="card-text">Bring the Sun to your favourite person!</p>
+
+              <div class="row">
+                <div class="col">
+                  <form method="POST" action="/stripe_pay">
+                <div class="input-group">
+                  <!-- <span class="input-group-btn"> -->
+                  <button type="button" class="quantity-left-minus btn btn-danger btn-number rounded"  data-type="minus" data-field="">-</button>
+                  <input type="text" id="quantity" name="quantity" class="form-control input-number" disabled value="1" min="1" max="100">
+                  <!-- <span class="input-group-btn"> -->
+                  <button type="button" class="quantity-right-plus btn btn-success btn-number rounded"  data-type="plus" data-field="">+</button>
+                  <div class="col"><a href="#" class="btn btn-primary buy_now_btn" id="Sunflower" type="submit">Buy Now</a></div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- <div class="card col" style="width: 18rem;">
+            <img src="../static/img/roses.PNG" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">Roses</h5>
+              <p class="card-text">The perfect Valentine's Day gift</p>
+              <a href="#" class="btn btn-primary">Buy Now</a>
+            </div>
+          </div>
+          <div class="card col" style="width: 18rem;">
+            <img src="../static/img/sunflower.jpg" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">Sunflower</h5>
+              <p class="card-text">Bring the Sun to your favourite person!</p>
+              <a href="#" class="btn btn-primary">Buy Now</a>
+            </div>
+          </div> -->
+          <div class="col-2"></div>
+        </div>
+</div>
+
+      <!-- <div class="jumbotron">
+        <h1 class="display-3">The Product</h1>
+        <p class="lead">Purchase The Product for only $99.</p>
+        <a href="#" id="buy_now_btn" class="btn btn-primary">Buy Now</a>
+      </div> -->
+
+      <!-- <footer class="footer">
+        <p>&copy; Store 2017</p>
+      </footer> -->
+      <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+      <script src="https://js.stripe.com/v3/"></script>
+      <script src="{{ url_for('static', filename='script-ajax.js') }}"></script>
+
+    </div> <!-- /container -->
+  </body>
+</html>
