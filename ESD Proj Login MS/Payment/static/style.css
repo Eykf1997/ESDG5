@@ -1,0 +1,17 @@
+body {
+    background-color: #f2edf0;
+}
+
+.custom_jumbotron {
+    background-color: #f2edf0;
+    color: #eec3cd;
+    font-size: 3em;
+    font-weight: bold;
+    font-family: Helvetica Arial, sans-serif;
+
+    border: 10px solid #eec3cd;
+}
+
+ul {
+    list-style-image: url('img/pink-heart.png');
+}
