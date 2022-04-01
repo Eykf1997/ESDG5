@@ -15,7 +15,7 @@ CORS(app)
 
 inventory_CMS = "http://localhost:5100/inventory_management"
 order_URL = "http://localhost:5001/order"
-# shipping_record_URL = "http://localhost:5002/shipping_record"
+schedule_URL = "http://localhost:5003/schedule"
 # activity_log_URL = "http://localhost:5003/activity_log"
 # error_URL = "http://localhost:5004/error"
 
@@ -145,6 +145,40 @@ def processPlaceOrder(order):
 
 
 
+################################################################ 3. Send schedule to database ##################################################################
+    print('\n\n-----Invoking schedule microservice-----')
+    schedule_result = invoke_http(schedule_URL, method="POST", json=order)
+    print("\nOrder sent to schedule_result log.\n")
+    print('schedule_result:', schedule_result)
+    code = schedule_result["code"]##################################### place this at the last 
+    message = json.dumps(schedule_result)
+
+############################################## Error Handling #############################################################
+    if code not in range(200, 300):
+        # Inform the error microservice
+        #print('\n\n-----Invoking error microservice as order fails-----')
+        print('\n\n-----Publishing the (order error) message with routing_key=order.error-----')
+        amqp_setup.channel.basic_publish(exchange=amqp_setup.exchangename, routing_key="order.error", 
+            body=message, properties=pika.BasicProperties(delivery_mode = 2)) 
+
+        # - reply from the invocation is not used;
+        # continue even if this invocation fails        
+        print("\nOrder status ({:d}) published to the RabbitMQ Exchange:".format(
+            code), schedule_result)
+
+        # 7. Return error
+        return {
+            "code": 500,
+            "data": {"schedule_result": schedule_result},
+            "message": "schedule_result failure sent for error handling."
+        }
+
+
+
+
+
+
+
 
 
 ############################################### success return ############################################
@@ -152,7 +186,8 @@ def processPlaceOrder(order):
             "code": 201,
         "data": {
             "order_result": order_result,
-            "inventory_result": inventory_result
+            "inventory_result": inventory_result,
+            "schedule_result":schedule_result
         }
 
     }
@@ -165,8 +200,7 @@ def processPlaceOrder(order):
 #     app.run(host="0.0.0.0", port=5100, debug=True)
 
 if __name__ == '__main__':
-
-    app.run(port=5000, debug=True)
+    app.run(port=5010, debug=True)
 
     
  # 4. Record new order

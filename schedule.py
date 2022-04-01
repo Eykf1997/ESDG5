@@ -32,7 +32,7 @@ class Schedule(db.Model):
         self.Phone = Phone
 
     def json(self):
-        return {"Schedule_ID": self.Schedule_ID, "collection_date": self.collection_date, "timeslot": self.timeslot, "Customer_ID": self.Customer_ID, "Phone": self.Phone}
+         return {"Schedule_ID": self.Schedule_ID, "collection_date": self.collection_date, "timeslot": self.timeslot, "Customer_ID": self.Customer_ID, "Phone": self.Phone}
 
 
 
@@ -59,12 +59,14 @@ def get_all():
 
 @app.route("/schedule", methods=['POST'])
 def create_schedule():
-    Schedule_ID = request.json.get('Schedule_ID')
-    collection_date = request.json.get('collection_date')
-    timeslot = request.json.get('timeslot')
-    Customer_ID = request.json.get('Customer_ID')
-    Phone = request.json.get('Phone')
-    schedule = Schedule(Schedule_ID=Schedule_ID, collection_date=collection_date, timeslot=timeslot, Customer_ID=Customer_ID, Phone=Phone)
+    schedule_cart = request.json.get('schedule')
+    print(schedule_cart[0]["Schedule_ID"])
+    # Schedule_ID = request.json.get('Schedule_ID')
+    # collection_date = request.json.get('collection_date')
+    # timeslot = request.json.get('timeslot')
+    # Customer_ID = request.json.get('Customer_ID')
+    # Phone = request.json.get('Phone')
+    schedule = Schedule(Schedule_ID=schedule_cart[0]["Schedule_ID"], collection_date=schedule_cart[0]["collection_date"], timeslot=schedule_cart[0]["timeslot"], Customer_ID=schedule_cart[0]["Customer_ID"], Phone=schedule_cart[0]["Phone"])
 
     # cart_item = request.json.get('cart_item')
     # for item in cart_item:
