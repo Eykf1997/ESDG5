@@ -18,21 +18,21 @@ CORS(app)
 class Schedule(db.Model):
     __tablename__ = 'schedule'
 
-    Schedule_ID = db.Column(db.String(13), primary_key=True)
-    collection_date = db.Column(db.DateTime, nullable=False)
+    Schedule_ID = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, nullable=False)
     timeslot = db.Column(db.DateTime, nullable=False)
     Customer_ID = db.Column(db.String)
-    Phone = db.Column(db.Integer)
+    Email = db.Column(db.String)
 
-    def __init__(self, Schedule_ID, collection_date, timeslot, Customer_ID, Phone):
-        self.Schedule_ID = Schedule_ID
-        self.collection_date = collection_date
-        self.timeslot = timeslot
-        self.Customer_ID = Customer_ID
-        self.Phone = Phone
+    # def __init__(self, Schedule_ID, order_id, timeslot, Customer_ID, Email):
+    #     self.Schedule_ID = Schedule_ID
+    #     self.order_id = order_id
+    #     self.timeslot = timeslot
+    #     self.Customer_ID = Customer_ID
+    #     self.Email = Email
 
     def json(self):
-         return {"Schedule_ID": self.Schedule_ID, "collection_date": self.collection_date, "timeslot": self.timeslot, "Customer_ID": self.Customer_ID, "Phone": self.Phone}
+         return {"Schedule_ID": self.Schedule_ID, "order_id": self.order_id, "timeslot": self.timeslot, "Customer_ID": self.Customer_ID, "Email": self.Email}
 
 
 
@@ -60,13 +60,13 @@ def get_all():
 @app.route("/schedule", methods=['POST'])
 def create_schedule():
     schedule_cart = request.json.get('schedule')
-    print(schedule_cart[0]["Schedule_ID"])
+    #print(schedule_cart[0]["Schedule_ID"])
     # Schedule_ID = request.json.get('Schedule_ID')
     # collection_date = request.json.get('collection_date')
     # timeslot = request.json.get('timeslot')
     # Customer_ID = request.json.get('Customer_ID')
     # Phone = request.json.get('Phone')
-    schedule = Schedule(Schedule_ID=schedule_cart[0]["Schedule_ID"], collection_date=schedule_cart[0]["collection_date"], timeslot=schedule_cart[0]["timeslot"], Customer_ID=schedule_cart[0]["Customer_ID"], Phone=schedule_cart[0]["Phone"])
+    schedule = Schedule( order_id=schedule_cart[0]["order_id"], timeslot=schedule_cart[0]["timeslot"], Customer_ID=schedule_cart[0]["Customer_ID"], Email=schedule_cart[0]["Email"])
 
     # cart_item = request.json.get('cart_item')
     # for item in cart_item:
