@@ -1,0 +1,71 @@
+{
+	"info": {
+		"_postman_id": "149f3d1a-5e39-4ed8-bdd6-475e54e37d54",
+		"name": "Lilas Blooms",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Place Order - correct inputs",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n   \"customer_id\": \"Leong Error\",\r\n   \"cart_item\": [{\r\n      \"Items_ID\": \"I01\",\r\n      \"quantity\": 1\r\n   },\r\n   {\r\n      \"Items_ID\": \"I02\",\r\n      \"quantity\": 1\r\n   }]\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/place_order",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"place_order"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Place Order - error input",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n   \"customer_id\": \"Leong\",\r\n   \"cart_item\": [{\r\n      \"Items_ID\": \"I01\",\r\n      \"quantity\": 1\r\n   },x\r\n   {\r\n      \"Items_ID\": \"I02\",\r\n      \"quantity\": 1\r\n   }]\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:5000/place_order",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"place_order"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
