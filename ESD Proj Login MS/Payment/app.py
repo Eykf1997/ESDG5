@@ -12,7 +12,9 @@ stripe.api_key = app.config['STRIPE_SECRET_KEY']
 
 @app.route('/', methods =["GET", "POST"])
 def index():
+    # return render_template('../index.html')
     return render_template('index.html')
+
 
 
 @app.route("/getprice")
@@ -60,6 +62,7 @@ def stripe_pay():
         success_url=url_for('thanks', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
         cancel_url=url_for('index', _external=True),
     )
+    print(session['id'])
     return {
         'checkout_session_id': session['id'], 
         'checkout_public_key': app.config['STRIPE_PUBLIC_KEY']
@@ -73,6 +76,7 @@ def stripe_webhook():
         print('REQUEST TOO BIG')
         abort(400)
     payload = request.get_data()
+    print(payload)
     sig_header = request.environ.get('HTTP_STRIPE_SIGNATURE')
     endpoint_secret = 'whsec_5fd44bedbf7357b7378942aa3a5e0003742cd505f7aec565a5ee1b616e897f02'
     event = None
@@ -114,23 +118,23 @@ def stripe_webhook():
 @app.route('/thanks')
 def thanks():
     return render_template('thanks.html')
-@app.route('/getdata')
-def getdata():
-    if len(data):
-        return jsonify(
-            {
-                "code": 200,
-                "data": {
-                    "orders": data
-                }
-            }
-        )
-    return jsonify(
-        {
-            "code": 404,
-            "message": "There are no orders."
-        }
-    ), 404
+# @app.route('/getdata')
+# def getdata():
+#     if len(data):
+#         return jsonify(
+#             {
+#                 "code": 200,
+#                 "data": {
+#                     "orders": data
+#                 }
+#             }
+#         )
+#     return jsonify(
+#         {
+#             "code": 404,
+#             "message": "There are no orders."
+#         }
+#     ), 404
     # return render_template('thanks.html')
 
 if __name__ == '__main__':
