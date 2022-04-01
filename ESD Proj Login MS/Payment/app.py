@@ -14,15 +14,36 @@ stripe.api_key = app.config['STRIPE_SECRET_KEY']
 def index():
     return render_template('index.html')
 
+
+@app.route("/getprice")
+def get_all():
+    data= stripe.Price.list(limit=3)
+    ##data = json.dumps(data, indent=4)
+    if len(data):
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "products": data
+                }
+            }
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "message": "There are no products."
+        }
+    ), 404
+
 @app.route('/stripe_pay', methods =["GET","POST"]) #******
 def stripe_pay():
     data = json.loads(request.data)
-    print(type(data))
-    print(data)
     quantity = data['quantity']
     product = data['product']
     price = ''
-    print(product)
+    # print(product)
+    # data= stripe.Price.list(limit=3)
+    # print(type(data))
     if product == 'Sunflower':
         price = 'price_1KeMtfImsLnkA7wnVSIuQ8FL'
     elif product == 'Pink':
@@ -44,14 +65,10 @@ def stripe_pay():
         'checkout_public_key': app.config['STRIPE_PUBLIC_KEY']
     }
 
-@app.route('/thanks')
-def thanks():
-    return render_template('thanks.html')
 
 @app.route('/stripe_webhook', methods=['POST'])
 def stripe_webhook():
     print('WEBHOOK CALLED')
-
     if request.content_length > 1024 * 1024:
         print('REQUEST TOO BIG')
         abort(400)
@@ -59,7 +76,6 @@ def stripe_webhook():
     sig_header = request.environ.get('HTTP_STRIPE_SIGNATURE')
     endpoint_secret = 'whsec_5fd44bedbf7357b7378942aa3a5e0003742cd505f7aec565a5ee1b616e897f02'
     event = None
-
     try:
         event = stripe.Webhook.construct_event(
             payload, sig_header, endpoint_secret
@@ -77,15 +93,45 @@ def stripe_webhook():
     amount = 0
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
-        print(session)
         line_items = stripe.checkout.Session.list_line_items(session['id'], limit=1)
-        print(line_items)
-        print(line_items['data'][0]['description'])
+        customer_email = session['customer_details']['email']
+        product = line_items['data'][0]['description']
+        quantity = line_items['data'][0]['quantity']
         amount = line_items['data'][0]['amount_total']/100
-        print(f'{amount:.2f}')
+        amount = format(amount, ".2f") 
+        global data
+        data = {
+            "customer_email": customer_email, 
+            "product":product,
+            "quantity":quantity,
+            "amount":amount
+            }
+
+        # data = json.dumps(data, indent=4)
+        print(data)
+        return data
     return {}
-
-
+@app.route('/thanks')
+def thanks():
+    return render_template('thanks.html')
+@app.route('/getdata')
+def getdata():
+    if len(data):
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "orders": data
+                }
+            }
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "message": "There are no orders."
+        }
+    ), 404
+    # return render_template('thanks.html')
 
 if __name__ == '__main__':
     app.run()
