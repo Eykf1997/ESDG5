@@ -39,24 +39,34 @@ def get_all():
 @app.route('/stripe_pay', methods =["POST"]) #******
 def stripe_pay():
     data = json.loads(request.data)
-    quantity = data['quantity']
-    product = data['product']
+    # print(data)
+    newdata = []
+    for product in data:
+        item  = {}
+        if product == 'Sunflower':
+            item['price'] = 'price_1KeMtfImsLnkA7wnVSIuQ8FL'
+        elif product == 'Assorted Pink':
+            item['price'] = 'price_1KecioImsLnkA7wnXCp8Co2d'
+        elif product == 'Roses':
+            item['price'] = 'price_1KecjOImsLnkA7wn7kNOcRVI'
+        item['quantity'] = data[product]
+        newdata.append(item)
+    # print(newdata)
+    # quantity = data['quantity']
+    # product = data['product']
     price = ''
     # print(product)
     # data= stripe.Price.list(limit=3)
     # print(type(data))
-    if product == 'Sunflower':
-        price = 'price_1KeMtfImsLnkA7wnVSIuQ8FL'
-    elif product == 'Pink':
-        price = 'price_1KecioImsLnkA7wnXCp8Co2d'
-    elif product == 'Roses':
-        price = 'price_1KecjOImsLnkA7wn7kNOcRVI'
+    # if product == 'Sunflower':
+    #     price = 'price_1KeMtfImsLnkA7wnVSIuQ8FL'
+    # elif product == 'Pink':
+    #     price = 'price_1KecioImsLnkA7wnXCp8Co2d'
+    # elif product == 'Roses':
+    #     price = 'price_1KecjOImsLnkA7wn7kNOcRVI'
     session = stripe.checkout.Session.create(
         payment_method_types=['card'],
-        line_items=[{
-            'price': price,
-            'quantity': quantity,
-        }],
+        line_items=newdata,
         mode='payment',
         success_url=url_for('thanks', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
         cancel_url=url_for('index', _external=True),
@@ -74,7 +84,7 @@ def stripe_webhook():
         print('REQUEST TOO BIG')
         abort(400)
     payload = request.get_data()
-    print(payload)
+    # print(payload)
     sig_header = request.environ.get('HTTP_STRIPE_SIGNATURE')
     endpoint_secret = 'whsec_5fd44bedbf7357b7378942aa3a5e0003742cd505f7aec565a5ee1b616e897f02'
     event = None
@@ -95,22 +105,32 @@ def stripe_webhook():
     amount = 0
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
-        line_items = stripe.checkout.Session.list_line_items(session['id'], limit=1)
+        line_items = stripe.checkout.Session.list_line_items(session['id'])
         customer_email = session['customer_details']['email']
-        product = line_items['data'][0]['description']
-        quantity = line_items['data'][0]['quantity']
-        amount = line_items['data'][0]['amount_total']/100
+        print(session)
+        print('------')
+        print(line_items)
+        amount = session['amount_total']/100
         amount = format(amount, ".2f") 
         global data
         data = {
             "customer_email": customer_email, 
-            "product":product,
-            "quantity":quantity,
             "amount":amount
             }
-
-        # data = json.dumps(data, indent=4)
+        cartitem = []
+        for product in line_items['data']:
+            item = {}
+            item['product'] = product['description']
+            item['quantity'] = product['quantity']
+            cartitem.append(item)
+        data['cartitem'] = cartitem
+        # product = line_items['data'][0]['description']
+        # quantity = line_items['data'][0]['quantity']
         print(data)
+        
+
+        data = json.dumps(data, indent=4)
+        # print(data)
         return data
     return {}
 @app.route('/thanks')
