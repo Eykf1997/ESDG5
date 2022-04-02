@@ -18,7 +18,8 @@ def index():
 
 @app.route("/getprice")
 def get_all():
-    data= stripe.Price.list(limit=3)
+    data= stripe.Price.list()
+    print(data)
     ##data = json.dumps(data, indent=4)
     if len(data):
         return jsonify(
@@ -38,20 +39,28 @@ def get_all():
 
 @app.route('/stripe_pay', methods =["POST"]) #******
 def stripe_pay():
-    data = json.loads(request.data)
-    # print(data)
+    global importeddata
+    importeddata = json.loads(request.data)
+    print(importeddata)
     newdata = []
-    for product in data:
+    for product in importeddata:
         item  = {}
-        if product == 'Sunflower':
-            item['price'] = 'price_1KeMtfImsLnkA7wnVSIuQ8FL'
-        elif product == 'Assorted Pink':
-            item['price'] = 'price_1KecioImsLnkA7wnXCp8Co2d'
-        elif product == 'Roses':
-            item['price'] = 'price_1KecjOImsLnkA7wn7kNOcRVI'
-        item['quantity'] = data[product]
-        newdata.append(item)
-    # print(newdata)
+        if product != 'timeslot':
+            if product == 'Condolence Stands':
+                item['price'] = 'price_1Kjlw2ImsLnkA7wnIQzdEG8e'
+            elif product == 'Jasper Bouquet':
+                item['price'] = 'price_1Kjlv8ImsLnkA7wnfXAvAnvE'
+            elif product == 'Hydrangeas & Baby Breath Bouquet':
+                item['price'] = 'price_1Kjlu6ImsLnkA7wnZ9a6VJ8t'
+            elif product == 'Emcantador Bouquet':
+                item['price'] = 'price_1KjltPImsLnkA7wnsFxqF4SO'
+            elif product == 'Cotton Dreams':
+                item['price'] = 'price_1KjlsjImsLnkA7wn7oXidVDY'
+            elif product == 'Pastel Bouquet':
+                item['price'] = 'price_1KjlrgImsLnkA7wn6MRKMyXG'
+            item['quantity'] = importeddata[product][0]
+            newdata.append(item)
+    print(newdata)
     # quantity = data['quantity']
     # product = data['product']
     price = ''
@@ -68,8 +77,8 @@ def stripe_pay():
         payment_method_types=['card'],
         line_items=newdata,
         mode='payment',
-        success_url=url_for('thanks', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
-        cancel_url=url_for('index', _external=True),
+        success_url='http://localhost/IS216/ESDG5/thanks.html'+ '?session_id={CHECKOUT_SESSION_ID}',
+        cancel_url='http://localhost/IS216/ESDG5/shoppingcart.html',
     )
     return {
         'checkout_session_id': session['id'], 
@@ -100,13 +109,13 @@ def stripe_webhook():
         # Invalid signature
         print('INVALID SIGNATURE')
         return {}, 400
-
     # Handle the checkout.session.completed event
     amount = 0
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
-        line_items = stripe.checkout.Session.list_line_items(session['id'])
+        line_items = stripe.checkout. Session.list_line_items(session['id'])
         customer_email = session['customer_details']['email']
+        customer_id = session['customer_details']['name']
         print(session)
         print('------')
         print(line_items)
@@ -114,45 +123,55 @@ def stripe_webhook():
         amount = format(amount, ".2f") 
         global data
         data = {
-            "customer_email": customer_email, 
-            "amount":amount
+            "customer_id": customer_id,
+            "schedule":[{
+                "Customer_ID": customer_id,
+                "Email": customer_email, 
+            }]
             }
         cartitem = []
+        print(importeddata)
         for product in line_items['data']:
             item = {}
             item['product'] = product['description']
             item['quantity'] = product['quantity']
+            for i in importeddata:
+                if product['description'] == i:
+                    item['Item_Id'] = importeddata[i][1]
             cartitem.append(item)
-        data['cartitem'] = cartitem
+        data['cart_item'] = cartitem
+        data['schedule'][0]['timeslot'] = importeddata['timeslot']
+
         # product = line_items['data'][0]['description']
         # quantity = line_items['data'][0]['quantity']
+        # data = json.dumps(data, indent=4)
+        print('-------------------------------------------------')
         print(data)
-        
-
-        data = json.dumps(data, indent=4)
         # print(data)
+        # print('-------------------------------------------------')
+        # checkoutsession = stripe.checkout.Session.retrieve(session['id'])
+        print()
+        # print(checkoutsession)
         return data
     return {}
-@app.route('/thanks')
-def thanks():
-    return render_template('thanks.html')
-# @app.route('/getdata')
-# def getdata():
-#     if len(data):
-#         return jsonify(
-#             {
-#                 "code": 200,
-#                 "data": {
-#                     "orders": data
-#                 }
-#             }
-#         )
-#     return jsonify(
-#         {
-#             "code": 404,
-#             "message": "There are no orders."
-#         }
-#     ), 404
+# @app.route('/thanks')
+# def thanks():
+#     return render_template('thanks.html')
+@app.route('/getdata')
+def getdata():
+    if len(data):
+        return jsonify(
+            {
+                "code": 200,
+                "data": data
+            }
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "message": "There are no orders."
+        }
+    ), 404
     # return render_template('thanks.html')
 
 # if __name__ == '__main__':
