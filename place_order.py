@@ -97,6 +97,9 @@ def processPlaceOrder(order):
 
 ############################################################# No error Proceed to Inventory Check & send telegram if stock low ################################################
     else:
+        print('\n\n-----Publishing the (order error) message with routing_key=order.error-----')
+        amqp_setup.channel.basic_publish(exchange=amqp_setup.exchangename, routing_key="order.admin", 
+            body=message, properties=pika.BasicProperties(delivery_mode = 2))
 
         # print('\n\n-----Invoking telegram bot microservice-----')
         # print(inventory_result)
@@ -139,37 +142,65 @@ def processPlaceOrder(order):
                 "message": "inventory_result failure sent for error handling."
             }
 
-
+        else:
+            # print('\n\n-----Publishing the (order error) message with routing_key=order.error-----')
+            # amqp_setup.channel.basic_publish(exchange=amqp_setup.exchangename, routing_key="order.info", 
+            #     body=message, properties=pika.BasicProperties(delivery_mode = 2))
 
 
 
     ################################################################ 3. Send schedule to database ##################################################################
-        print('\n\n-----Invoking schedule microservice-----')
-        schedule_result = invoke_http(schedule_URL, method="POST", json=order)
-        print("\nOrder sent to schedule_result log.\n")
-        print('schedule_result:', schedule_result)
-        code = schedule_result["code"]##################################### place this at the last 
-        message = json.dumps(schedule_result)
+            print('\n\n-----Invoking schedule microservice-----')
+            schedule_result = invoke_http(schedule_URL, method="POST", json=order)
+            print("\nOrder sent to schedule_result log.\n")
+            print('schedule_result:', schedule_result)
+            code = schedule_result["code"]##################################### place this at the last 
+            message = json.dumps(schedule_result)
 
     ############################################## Error Handling #############################################################
-        if code not in range(200, 300):
-            # Inform the error microservice
-            #print('\n\n-----Invoking error microservice as order fails-----')
-            print('\n\n-----Publishing the (order error) message with routing_key=order.error-----')
-            amqp_setup.channel.basic_publish(exchange=amqp_setup.exchangename, routing_key="order.error", 
-                body=message, properties=pika.BasicProperties(delivery_mode = 2)) 
+            if code not in range(200, 300):
+                # Inform the error microservice
+                #print('\n\n-----Invoking error microservice as order fails-----')
+                print('\n\n-----Publishing the (order error) message with routing_key=order.error-----')
+                amqp_setup.channel.basic_publish(exchange=amqp_setup.exchangename, routing_key="order.error", 
+                    body=message, properties=pika.BasicProperties(delivery_mode = 2)) 
 
-            # - reply from the invocation is not used;
-            # continue even if this invocation fails        
-            print("\nOrder status ({:d}) published to the RabbitMQ Exchange:".format(
-                code), schedule_result)
+                # - reply from the invocation is not used;
+                # continue even if this invocation fails        
+                print("\nOrder status ({:d}) published to the RabbitMQ Exchange:".format(
+                    code), schedule_result)
 
-            # 7. Return error
-            return {
-                "code": 500,
-                "data": {"schedule_result": schedule_result},
-                "message": "schedule_result failure sent for error handling."
+                # 7. Return error
+                return {
+                    "code": 500,
+                    "data": {"schedule_result": schedule_result},
+                    "message": "schedule_result failure sent for error handling."
+                }
+
+        
+            else:
+
+                
+                pass
+        all_data = {
+        "code": 201,
+            "data": {
+                "order_result": order_result,
+                "inventory_result": inventory_result,
+                "schedule_result":schedule_result
             }
+        }
+        print(all_data)
+        print('\n\n-----Publishing the (order error) message with routing_key=order.error-----')
+        amqp_setup.channel.basic_publish(exchange=amqp_setup.exchangename, routing_key="order.customer", 
+            body=json.dumps(all_data["data"]), properties=pika.BasicProperties(delivery_mode = 2))
+
+        # print('\n\n-----Publishing the (order error) message with routing_key=order.error-----')
+        # amqp_setup.channel.basic_publish(exchange=amqp_setup.exchangename, routing_key="order.admin", 
+        #     body=json.dumps(all_data["data"]), properties=pika.BasicProperties(delivery_mode = 2))
+         
+        
+
 
 
 
@@ -187,8 +218,11 @@ def processPlaceOrder(order):
                 "inventory_result": inventory_result,
                 "schedule_result":schedule_result
             }
-
         }
+
+
+
+
 
 
 # Execute this program if it is run as a main script (not by 'import')

@@ -1,0 +1,65 @@
+version: "3.8"
+
+networks:
+  default:
+    external:
+      name: kong_kong-net
+
+services:
+ 
+  #################################
+  # Login: The Login microservice
+  #################################
+  login:
+    build:
+      context: ./login
+      dockerfile: Dockerfile
+    image: jwleong2020/login:1.0
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/logindb
+    ports:
+      - "5000:5000"
+
+  #################################
+  # Customer: The Customer microservice
+  #################################
+  customer:
+    build:
+      context: ./customer
+      dockerfile: Dockerfile
+    image: jwleong2020/customer:1.0
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/customerdb
+
+  #################################
+  # Admin: The Admin microservice
+  #################################
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    image: jwleong2020/admin:1.0
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/admindb
+ 
+  ###############################################
+  # register: The Register complex microservice
+  ###############################################
+  register:
+    build:
+      context: ./register
+      dockerfile: Dockerfile
+    image: jwleong2020/register:1.0
+    depends_on:
+      - login
+      - customer
+      - admin
+    environment:
+      login_URL: http://login:5000/login
+      customer_URL: http://customer:5001/customer
+      admin_URL: http://admin:5002/admin
+    ports:
+      - "5003:5003"
