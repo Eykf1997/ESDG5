@@ -29,12 +29,12 @@ service = Create_Service(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
 
 
 
-monitorBindingKey='*.info'
+monitorBindingKey='*.customer'
 
 def receiveOrderLog():
     amqp_setup.check_setup()
         
-    queue_name = 'Order_Notification'
+    queue_name = 'Customer_Notification'
     
     # set up a consumer and start to wait for coming messages
     amqp_setup.channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
@@ -52,29 +52,43 @@ def CustomerNotification(order):
     print(order)
     
 
-
-
+#{'order_result': 
+# {'code': 201, 'data': 
+# {'created': 'Sun, 03 Apr 2022 00:28:16 GMT', 'customer_id': 'gleena', 'modified': 'Sun, 03 Apr 2022 00:28:16 GMT', 'order_id': 312, 'order_item': 
+# [{'Item_Id': '1', 'order_id': 312, 'order_item_id': 621, 'quantity': 1}, {'Item_Id': '2', 'order_id': 312, 'order_item_id': 622, 'quantity': 1}], 'status': 'NEW'}},
+#  'inventory_result': 
+# {'code': 201, 'data': 
+# {'inventory_result': {'code': 201, 'data': 
+# [{'Details': '99 rose bouquet', 'Expiry_date': '2022-03-20', 'Item_Id': 1, 'Item_Name': 'Willow Series ', 'Price': '500.00', 'Quantity': 49}, {'Details': 'Blue Baby Breath', 'Expiry_date': '2022-03-26', 'Item_Id': 2, 'Item_Name': 'Blue Baby Breath Bouquet', 'Price': '80.00', 'Quantity': 49}]},
+#  'telegram_result': {'code': 201, 'message': 'Telegram message sent to admin'}}}, '
+# schedule_result': {'code': 201, 'data': {'Customer_ID': '02', 'Email': 'iamyikiat@gmail', 'Schedule_ID': 178, 'order_id': 1, 'timeslot': 'Sun, 10 Apr 2022 09:30:00 GMT'}}}
 
 def process_email_step(order):
         print('email process start')
        # order_cart = request.json.get('cart_item')str(order_cart["quantity"]) 
-        email = order["data"]["schedule_result"]["data"]["customer_id"]
-        receiver_address = email
-        item = order["data"]["order_result"]["data"]["item_id"]
-        quantity = order["data"]["order_result"]["data"]["order_item"].length
+        print(order)
+        email = order["schedule_result"]["data"]["Email"]
+        flower = " "
+        allflower = order["inventory_result"]["data"]["inventory_result"]["data"]
+        for i in allflower: 
+            flower = flower + str(i["Item_Name"]) + "   "
+        print(flower)
         print(email)
+        receiver_address = email
+        # item = order["data"]["order_result"]["data"]["item_id"]
+        # quantity = order["data"]["order_result"]["data"]["order_item"].length
         message = MIMEMultipart()
         message['From'] = sender_address
-        message['To'] = "iamyikiat@gmail.com"
+        message['To'] = receiver_address
         message['Subject'] = 'Lilas Blooms order request'   #The subject line
-        mail_content='Hello Customer, You have ordered' + quantity + 'of'    + item #The body and the attachments for the mail
+        mail_content='Hello Customer, You have ordered' + flower 
         message.attach(MIMEText(mail_content, 'plain'))
         #Create SMTP session for sending the mail
         session = smtplib.SMTP('smtp.gmail.com', 587) #use gmail with port
         session.starttls() #enable security
         session.login(sender_address, sender_pass) #login with mail_id and password
         text = message.as_string()
-        session.sendmail(sender_address, "iamyikiat@gmail.com", text)
+        session.sendmail(sender_address, receiver_address, text)
         session.quit()
         print('Mail Sent')
 

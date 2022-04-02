@@ -77,8 +77,8 @@ def stripe_pay():
         payment_method_types=['card'],
         line_items=newdata,
         mode='payment',
-        success_url='http://localhost/IS216/ESDG5/thanks.html'+ '?session_id={CHECKOUT_SESSION_ID}',
-        cancel_url='http://localhost/IS216/ESDG5/shoppingcart.html',
+        success_url='http://localhost/ESD_Project/thanks.html'+ '?session_id={CHECKOUT_SESSION_ID}',
+        cancel_url='http://localhost/ESD_Project/shoppingcart.html',
     )
     return {
         'checkout_session_id': session['id'], 
