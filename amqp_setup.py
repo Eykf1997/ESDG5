@@ -52,14 +52,24 @@ channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='#')
 
 ############   Order queue    #############
 #delcare Order Notification queue
-queue_name = 'Order_Notification'
+queue_name = 'Customer_Notification'
 channel.queue_declare(queue=queue_name, durable=True)
     # 'durable' makes the queue survive broker restarts
 
 #bind Activity_Log queue
-channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='*.info') 
+channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='*.customer') 
     # bind the queue to the exchange via the key
-    # 'routing_key=#' => any routing_key would be matched    
+    # 'routing_key=#' => any routing_key would be matched 
+    # 
+
+queue_name = 'Admin_Notification'
+channel.queue_declare(queue=queue_name, durable=True)
+    # 'durable' makes the queue survive broker restarts
+
+#bind Activity_Log queue
+channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='*.admin') 
+    # bind the queue to the exchange via the key
+    # 'routing_key=#' => any routing_key would be matched      
 
 
 queue_name = 'Schedule_Log'
