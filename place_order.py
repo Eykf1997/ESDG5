@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 import os, sys
-from telebotEmail import telegram_bot_sendtext
+from telebotNotification import telegram_bot_sendtext
 import requests
 from invokes import invoke_http
 
@@ -13,7 +13,7 @@ import json
 app = Flask(__name__)
 CORS(app)
 
-inventory_CMS = "http://localhost:5100/inventory_management"
+inventory_CMS = "http://127.0.0.1:/inventory_management"
 order_URL = "http://localhost:5001/order"
 schedule_URL = "http://localhost:5003/schedule"
 # activity_log_URL = "http://localhost:5003/activity_log"
@@ -97,100 +97,85 @@ def processPlaceOrder(order):
 
 ############################################################# No error Proceed to Inventory Check & send telegram if stock low ################################################
     else:
-        print('\n\n-----Publishing the (order info) message with routing_key=order.info-----')               
-        amqp_setup.channel.basic_publish(exchange=amqp_setup.exchangename, routing_key="order.info", 
-            body=message)  
-    # print('\n\n-----Invoking telegram bot microservice-----')
-    # print(inventory_result)
-    # bouquetDetail=inventory_result['data']['Details']
-    # bouquetQuantity=  abs(inventory_result['data']["Quantity"])
 
-    # #if else check to see whether bouquetQuantity remaining is less than 50
-    # if bouquetQuantity<50:
-    #     telegram_bot_sendtext(bouquetDetail,bouquetQuantity)
-    # # - reply from the invocation is not used;
-    # # continue even if this invocation fails
+    ################################################################ 2. Send order to inventory management CMS ##################################################################
+        print('\n\n-----Invoking inventory_URL microservice-----')
+        inventory_result = invoke_http(inventory_CMS, method="POST", json=order)
+        print("\nOrder sent to inventory_URL log.\n")
+        print('inventory_result:', inventory_result)
+        code = order_result["code"]##################################### place this at the last 
+        message = json.dumps(order_result)
+
+    ############################################## Error Handling #############################################################
+        if code not in range(200, 300):
+            # Inform the error microservice
+            #print('\n\n-----Invoking error microservice as order fails-----')
+            print('\n\n-----Publishing the (order error) message with routing_key=order.error-----')
+            amqp_setup.channel.basic_publish(exchange=amqp_setup.exchangename, routing_key="order.error", 
+                body=message, properties=pika.BasicProperties(delivery_mode = 2)) 
+
+            # - reply from the invocation is not used;
+            # continue even if this invocation fails        
+            print("\nOrder status ({:d}) published to the RabbitMQ Exchange:".format(
+                code), order_result)
+
+            # 7. Return error
+            return {
+                "code": 500,
+                "data": {"inventory_result": inventory_result},
+                "message": "inventory_result failure sent for error handling."
+            }
 
 
 
-################################################################ 2. Send order to inventory management CMS ##################################################################
-    print('\n\n-----Invoking inventory_URL microservice-----')
-    inventory_result = invoke_http(inventory_CMS, method="POST", json=order)
-    print("\nOrder sent to inventory_URL log.\n")
-    print('inventory_result:', inventory_result)
-    code = order_result["code"]##################################### place this at the last 
-    message = json.dumps(order_result)
 
-############################################## Error Handling #############################################################
-    if code not in range(200, 300):
-        # Inform the error microservice
-        #print('\n\n-----Invoking error microservice as order fails-----')
-        print('\n\n-----Publishing the (order error) message with routing_key=order.error-----')
-        amqp_setup.channel.basic_publish(exchange=amqp_setup.exchangename, routing_key="order.error", 
-            body=message, properties=pika.BasicProperties(delivery_mode = 2)) 
 
-        # - reply from the invocation is not used;
-        # continue even if this invocation fails        
-        print("\nOrder status ({:d}) published to the RabbitMQ Exchange:".format(
-            code), order_result)
+    ################################################################ 3. Send schedule to database ##################################################################
+        print('\n\n-----Invoking schedule microservice-----')
+        schedule_result = invoke_http(schedule_URL, method="POST", json=order)
+        print("\nOrder sent to schedule_result log.\n")
+        print('schedule_result:', schedule_result)
+        code = schedule_result["code"]##################################### place this at the last 
+        message = json.dumps(schedule_result)
 
-        # 7. Return error
+    ############################################## Error Handling #############################################################
+        if code not in range(200, 300):
+            # Inform the error microservice
+            #print('\n\n-----Invoking error microservice as order fails-----')
+            print('\n\n-----Publishing the (order error) message with routing_key=order.error-----')
+            amqp_setup.channel.basic_publish(exchange=amqp_setup.exchangename, routing_key="order.error", 
+                body=message, properties=pika.BasicProperties(delivery_mode = 2)) 
+
+            # - reply from the invocation is not used;
+            # continue even if this invocation fails        
+            print("\nOrder status ({:d}) published to the RabbitMQ Exchange:".format(
+                code), schedule_result)
+
+            # 7. Return error
+            return {
+                "code": 500,
+                "data": {"schedule_result": schedule_result},
+                "message": "schedule_result failure sent for error handling."
+            }
+
+
+
+
+
+
+
+
+
+    ############################################### success return ############################################
         return {
-            "code": 500,
-            "data": {"inventory_result": inventory_result},
-            "message": "inventory_result failure sent for error handling."
+                "code": 201,
+            "data": {
+                "order_result": order_result,
+                "inventory_result": inventory_result,
+                "schedule_result":schedule_result
+            }
+
         }
-
-
-
-
-
-################################################################ 3. Send schedule to database ##################################################################
-    print('\n\n-----Invoking schedule microservice-----')
-    schedule_result = invoke_http(schedule_URL, method="POST", json=order)
-    print("\nOrder sent to schedule_result log.\n")
-    print('schedule_result:', schedule_result)
-    code = schedule_result["code"]##################################### place this at the last 
-    message = json.dumps(schedule_result)
-
-############################################## Error Handling #############################################################
-    if code not in range(200, 300):
-        # Inform the error microservice
-        #print('\n\n-----Invoking error microservice as order fails-----')
-        print('\n\n-----Publishing the (order error) message with routing_key=order.error-----')
-        amqp_setup.channel.basic_publish(exchange=amqp_setup.exchangename, routing_key="order.error", 
-            body=message, properties=pika.BasicProperties(delivery_mode = 2)) 
-
-        # - reply from the invocation is not used;
-        # continue even if this invocation fails        
-        print("\nOrder status ({:d}) published to the RabbitMQ Exchange:".format(
-            code), schedule_result)
-
-        # 7. Return error
-        return {
-            "code": 500,
-            "data": {"schedule_result": schedule_result},
-            "message": "schedule_result failure sent for error handling."
-        }
-
-
-
-
-
-
-
-
-
-############################################### success return ############################################
-    return {
-            "code": 201,
-        "data": {
-            "order_result": order_result,
-            "inventory_result": inventory_result,
-            "schedule_result":schedule_result
-        }
-
-    }
 
 
 # Execute this program if it is run as a main script (not by 'import')

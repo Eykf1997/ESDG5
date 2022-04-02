@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+
+    <title>Bouquet</title>
+
+    <link rel="stylesheet" href="">
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!-- Bootstrap libraries -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css'
+        rel='stylesheet'
+        integrity='sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC'
+        crossorigin='anonymous'>
+    
+    <!-- Bootstrap JS -->
+   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+
+  
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+</head>
+
+<body>
+  <!-- google chart check stock status -->
+  <div id="myChart" class="container" style="width:100%; max-width:750px; height:600px;"></div>
+  <label id="error" class="text-danger"></label>
+
+  <!-- Modal Create Bouquet -->
+  <button type="button" class="btn btn-primary " data-toggle="modal" data-target="#exampleModal">
+    Create Bouquet
+  </button>
+  
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Create Bouquet</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <form id='addInventoryForm'>
+                <div class="form-group">
+                    <label for="name">Item Name</label>
+                    <input type="text" class="form-control" id="name" aria-describedby="emailHelp"
+                        placeholder="Enter Bouquet" value="Lisael Bouquet">
+                </div>
+                <div class="form-group">
+                    <label for="Item_Id">Item ID</label>
+                    <input type="text" class="form-control" id="Item_Id" aria-describedby="emailHelp"
+                        placeholder="Enter Item ID" value="10">
+                </div>
+                <div class="form-group">
+                    <label for="quantity">Quantity</label>
+                    <input type="text" class="form-control" id="quantity" placeholder="Enter isbn13"
+                        value="20">
+                </div>
+                <div class="form-group">
+                    <label for="details">Details</label>
+                    <input type="text" class="form-control" id="details" placeholder="Enter price"
+                        value="3 colors available">
+                </div>
+                <div class="form-group">
+                    <label for="price">Price</label>
+                    <input type="text" class="form-control" id="price" placeholder="Enter price"
+                        value="200.30">
+                </div>
+                <div class="form-group">
+                    <label for="expiry">Expiry Date</label><br />
+                    <input type="text" class="form-control" id="expiry" placeholder="Enter quantity"
+                        value="2022-05-17">
+                </div>
+                <button class="btn btn-primary" onclick="createFunction()">Create</button>
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>  
+  <!-- update inventory -->
+  <div id="inventoryModel"></div>
+  <div class="modal fade" id="flowerModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Update Bouquet</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- update html form from get- search item  -->
+            <form id='updateInventoryForm'></form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>   
+  
+  
+  <!-- database table display -->
+  <div id="main-container" class="container">
+    <h1 class="display-4">Bouquet Listing</h1>
+    <table class='table table-striped border-1'>
+        <thead class='table-dark'> 
+            <tr>
+                <th>ID</th>
+                <th>Bouquet</th>
+                <th>Quantity</th>
+                <th>Price ($)</th>
+                <th>Details</th>
+                <th>Expiry Date</th>
+            </tr>
+        </thead>
+        <tbody id="bouquetTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    //Helper function to display error message
+    function showError(message) {
+      // Display an error under the main container
+      $('#main-container')
+      .append("<label>" + message + "</label>");
+    }
+
+    //create function
+    function createFunction(){
+      $("#addInventoryForm").submit(async (event) => {
+        //Prevents screen from refreshing when submitting
+        event.preventDefault();
+        var serviceURL = "http://127.0.0.1:5005/inventory/";
+
+        //Get form data 
+        var Item_Id = $('#Item_Id').val();
+        var name = $('#name').val();
+        var price = parseFloat($('#price').val());
+        var details = $('#details').val();
+        var expiry = $('#expiry').val();
+        var quantity = $('#quantity').val();
+
+        // form the POST url which includes the dynamic isbnNumber
+        serviceURL += Item_Id;
+        try {
+            const response =
+                await fetch(
+                    serviceURL, {
+                    method: 'POST',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ Item_Name: name, Price: price , Details: details, Expiry_Date: expiry , Quantity: quantity  })
+                });
+            const data = await response.json();
+
+            if (response.ok) {
+                // relocate to home page
+                //window.location.replace("supply.html");
+                return false;
+            } else {
+                console.log(data);
+                showError(data.message);
+            }
+        } catch (error) {
+            // Errors when calling the service; such as network error, 
+            // service offline, etc
+            showError
+                ("There is a problem adding this bouquet, please try again later. " + error);
+
+        } // error
+    });
+    }
+    // delete function
+    function delFunction(item_id) {
+      console.log(item_id)
+      $(async () => {
+        var serviceURL = "http://127.0.0.1:5005/inventory/";
+
+        // form the POST url which includes the dynamic isbnNumber
+        serviceURL += item_id;
+        console.log(serviceURL)
+        try {
+            const response =
+                await fetch(
+                    serviceURL, {
+                    method: 'DELETE',
+                    headers: { "Content-Type": "application/json" },
+                    //body: JSON.stringify({ Item_Name: name, Price: price , Details: details, Expiry_Date: expiry , Quantity: quantity  })
+                });
+            const data = await response.json();
+
+            if (response.ok) {
+                // relocate to home page
+                window.location.replace("supply.html");
+                return false;
+            } else {
+                console.log(data);
+                showError(data.message);
+            }
+        } catch (error) {
+            // Errors when calling the service; such as network error, 
+            // service offline, etc
+            showError
+                ("There is a problem deleting this bouquet, please try again later. " + error);
+
+        } // error
+    });
+    }
+    //Search Function
+    function populateFunction(item_id) {
+      console.log(item_id)
+      
+      $(async () => {
+        var serviceURL = "http://127.0.0.1:5005/inventory/";
+
+        // form the POST url which includes the dynamic isbnNumber
+        serviceURL += item_id;
+        console.log(serviceURL)
+
+        try {
+          const response =
+              await fetch(
+                  serviceURL, { method: 'GET' }
+              );
+          const data = await response.json();
+          flower = data.data;     // the actual data is within another data element of the retrieved data 
+
+          if (response.ok) {
+            inventoryDetails = 
+            '<div class="form-group">' +
+              '<label for="name">Item Name</label>' +
+              '<input type="text" class="form-control" id="iname" aria-describedby="emailHelp"'+
+                  'placeholder="Enter Bouquet" value=' + flower.Item_Name + '>' +
+            '</div>'+
+            '<div class="form-group">' +
+                '<label for="quantity">Quantity</label> ' +
+                '<input type="text" class="form-control" id="iquantity" placeholder="Enter isbn13" ' +
+                    'value=' + flower.Quantity + '>' +
+            '</div>' +
+            '<div class="form-group"> ' +
+                '<label for="details">Details</label>' +
+                '<input type="text" class="form-control" id="idetails" placeholder="Enter price" ' +
+                    'value=' + flower.Details + '>' +
+            '</div>' +
+            '<div class="form-group">' +
+                '<label for="price">Price</label>' +
+                '<input type="text" class="form-control" id="iprice" placeholder="Enter price" ' +
+                    'value=' + flower.Price + '>' +
+            '</div> ' +
+            '<div class="form-group"> ' +
+                '<label for="expiry">Expiry Date</label><br />' +
+                '<input type="date" class="form-control" id="iexpiry" placeholder="YY-MM-DD"' +
+                    'value=' + flower.Expiry_Date + '>' +
+            '</div>' +
+            '<button class="btn btn-success" onclick="updateFunction('+item_id+')">Update</button>';
+              // $('#message').hide();
+              //$("#results").show();
+              //$('#booksTable tbody').empty();
+
+              //$('#updateInventoryForm').append(inventoryDetails);
+              document.getElementById('updateInventoryForm').innerHTML = inventoryDetails
+
+          } else {
+              showError(data.message);
+          }
+
+      } catch (error) {
+          // Errors when calling the service; such as network error, 
+          // service offline, etc
+          showError
+              ('There is a problem retrieving books data, please try again later.<br />' + error);
+
+      }
+    });
+    }
+
+    // Update function
+    function updateFunction(item_id) {
+      console.log(item_id)
+      var serviceURL = "http://127.0.0.1:5005/inventory/";
+
+        // form the POST url which includes the dynamic isbnNumber
+        serviceURL += item_id;
+        console.log(serviceURL)
+
+        //Get form data 
+        
+        var name = $('#iname').val();
+        var price = parseFloat($('#iprice').val());
+        var details = $('#idetails').val();
+        var expiry = $('#iexpiry').val();
+        var quantity = $('#iquantity').val();
+        
+        let _data = 
+          { Item_Name: name, Price: price , Details: details, Expiry_Date: expiry , Quantity: quantity  }
+        //alert(quantity)
+
+       
+       fetch(serviceURL, {
+         method: "PUT",
+         body: JSON.stringify(_data),
+         headers: {"Content-type": "application/json; charset=UTF-8"}
+       })
+       .then(response => response.json()) 
+       .then(json => console.log(json))
+       .catch(err => console.log(err));
+
+    }
+    // annonymous async function - using await requires the function that calls it to be async
+    $(async () => { 
+      //serviceURL
+      var serviceURL = 'http://127.0.0.1:5005/inventory';
+
+      try {
+        const response = await fetch(
+          serviceURL, {mode: 'cors', method: 'GET'}
+        );
+        const result = await response.json();
+        if (response.status === 200) {
+          // success case
+          var inventory = result.data.inventory; //array is in inventory within data of the returned result
+
+          // generate google chart
+          google.charts.load('current', {'packages':['corechart']});
+          google.charts.setOnLoadCallback(drawChart);
+          
+          function drawChart() {
+            // Get today's date
+            const d = new Date();
+            // Date: YY-MM-DD
+            actualDate = d.toISOString().split('T')[0]
+            splitDate = actualDate.split('-')
+            actualYear = splitDate[0]
+            actualMonth = splitDate[1]
+            actualDay = splitDate[2]
+
+            var data_title = [['Bouquet', 'Quantity', {role: 'style'} ]]
+            
+            // database item_name, quantity, colour
+            for (const flower of inventory){
+              expiryDate = flower.Expiry_Date.split('-')
+              expiryYear = expiryDate[0]
+              expiryMonth = expiryDate[1]
+              expiryDay = expiryDate[2]
+              
+              d1 = expiryMonth+"/" + expiryDay + "/" + expiryYear
+              d2 = actualMonth +"/" + actualDay + "/" + actualYear
+
+              //calculate days difference algo
+              var date1 = new Date(d1);
+              var date2 = new Date(d2);
+                
+              // To calculate the time difference of two dates
+              var Difference_In_Time = date2.getTime() - date1.getTime();
+                
+              // To calculate the no. of days between two dates
+              var Difference_In_Days = Math.abs(Difference_In_Time / (1000 * 3600 * 24));
+              console.log(Difference_In_Days)
+              if (expiryYear == actualYear) {
+                if (expiryMonth == actualMonth) {
+                  if (expiryDay < actualDay) {
+                    data_title.push([flower.Item_Name, parseInt(flower.Quantity), 'color: red'])
+
+                  } else if ( actualDay - expiryDay <= 7) {
+                    data_title.push([flower.Item_Name, parseInt(flower.Quantity), 'color: gold'])
+
+                  } else if ( actualDay - expiryDay > 7) {
+                    data_title.push([flower.Item_Name, parseInt(flower.Quantity), 'color: green'])
+
+                  } 
+
+                } if (expiryMonth > actualMonth) {
+                  console.log(flower.Item_Id)
+                  //7 days difference in 1 month apart
+                  if (expiryMonth - actualMonth == 1 && Difference_In_Days <=7){
+                    data_title.push([flower.Item_Name, parseInt(flower.Quantity), 'color: gold'])
+
+                  }
+                    
+                    data_title.push([flower.Item_Name, parseInt(flower.Quantity), 'color: green'])
+                } if (expiryMonth < actualMonth) {
+                  data_title.push([flower.Item_Name, parseInt(flower.Quantity), 'color: red'])
+
+                }
+              } if (expiryYear > actualYear) {
+
+                  data_title.push([flower.Item_Name, parseInt(flower.Quantity), 'color: green'])
+
+              } if (actualYear > expiryYear) {
+
+                data_title.push([flower.Item_Name, parseInt(flower.Quantity), 'color: red'])
+
+            }
+             // data_title.push([flower.Item_Name, parseInt(flower.Quantity), 'color: red'])
+            } 
+
+            console.log(data_title)
+            var data = google.visualization.arrayToDataTable(
+              data_title)
+            
+            var options = {
+              title:'Inventory Bouquet Stocks'
+            };
+      
+            var chart = new google.visualization.BarChart(document.getElementById('myChart'));
+              chart.draw(data, options);
+          }
+
+          // for loop to setup all tables rows with obtained bouquet data
+          var count = 1
+          var rows = "";
+          for (const bouquet of inventory) { 
+            eachRow =
+            
+              "<td>" + count + 
+              "<button type='submit' class='btn btn-danger btn-sm' onclick='delFunction("+bouquet.Item_Id+")' >Delete</button>&nbsp" +
+              "<button type='submit' class='btn btn-success btn-sm' data-toggle='modal' data-target='#flowerModal' onclick='populateFunction("+bouquet.Item_Id+")'>Update</button>" + "</td>" +
+              "<td>" + bouquet.Item_Name + "</td>" +
+              "<td>" + bouquet.Quantity + "</td>" +
+              "<td>" + bouquet.Price + "</td>" +       
+              "<td>" + bouquet.Details + "</td>" +
+              "<td>" + bouquet.Expiry_Date + "</td>" ;
+            rows += "<tr>" + eachRow + "</tr>";
+           
+            count++
+
+            } //delete, link to inventory.py(route)
+            // add all the rows to the table
+
+            
+            $('#bouquetTable').append(rows);
+            //$('#updateInventoryForm').append(inventoryDetails);
+
+
+            
+
+
+        } else if (response.status == 404) {
+            // No books
+            showError
+                (result.message);
+        } else {
+            // unexpected outcome, throw the error
+            throw response.status;
+        }
+
+        } catch (error) {
+        // Errors when calling the service; such as network error, 
+        // service offline, etc
+        showError
+            ('There is a problem retrieving bouquet data, please try again later.<br />' + error);
+
+        } // error
+    })
+  
+  </script>
+
+ 
+</body>
+</html>
+
+
+
+
