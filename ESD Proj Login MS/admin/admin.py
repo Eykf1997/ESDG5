@@ -1,9 +1,10 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from os import environ
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/adminDB'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
  
 db = SQLAlchemy(app)
@@ -32,7 +33,7 @@ class Admin(db.Model):
 def get_all():
 # copy the code to get all admin from book.py 
     admin_list = Admin.query.all()
-    print(admin_list)
+    # print(admin_list)
     if len(admin_list):
         return jsonify(
             {
@@ -160,4 +161,4 @@ def delete_admin(email):
     ), 404
  
 if __name__ == '__main__':
-    app.run(port=5002, debug=True)
+    app.run(host = '0.0.0.0', port=5002, debug=True)

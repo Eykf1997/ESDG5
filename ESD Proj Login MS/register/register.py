@@ -9,15 +9,10 @@ from invokes import invoke_http
 app = Flask(__name__)
 CORS(app)
 
-# book_URL = "http://localhost:5000/book"
-# order_URL = "http://localhost:5001/order"
-# shipping_record_URL = "http://localhost:5002/shipping_record"
-# activity_log_URL = "http://localhost:5003/activity_log"
-# error_URL = "http://localhost:5004/error"
-
-login_URL = "http://localhost:5000/login/"
-admin_URL = "http://localhost:5002/admin/"
-customer_URL = "http://localhost:5001/customer/"
+# to dockerise the files, change the urls to environ.get("url") then, in the YAML, specify the URLS using like in the lab 
+login_URL = os.environ.get("login_URL") 
+admin_URL = os.environ.get("admin_URL")
+customer_URL = os.environ.get("customer_URL")
 
 # register_details should contain details for admin/customer(email, name), password, username and creating admin or customer
 # for now, just take it that it is an input
@@ -34,7 +29,7 @@ def register():
         try:
             register_details = request.get_json()
             print("\nReceived registration details in JSON:", register_details)
-
+  
             # do the actual work
             # 1. Send order info {cart items}
             result = processRegister(register_details)
@@ -59,7 +54,7 @@ def processRegister(register_details):
     # then invoke admin/customer to check email exists
     print('\n-----Invoking login microservice-----')
     username = register_details["username"]
-    result = invoke_http(login_URL + username, method='GET')
+    result = invoke_http(login_URL + '/' + username, method='GET')
     code = result["code"]
 
     if code == 200:
@@ -76,13 +71,13 @@ def processRegister(register_details):
         account_details = {"name" : register_details["name"]}
 
         if account_type == "admin":
-            result = invoke_http(admin_URL + email, method='POST', json = account_details)
+            result = invoke_http(admin_URL + "/" + email, method='POST', json = account_details)
 
         else:
-            result = invoke_http(customer_URL + email, method='POST', json = account_details)
+            result = invoke_http(customer_URL + "/" + email, method='POST', json = account_details)
 
         # check if result returned has error, return error if have
-        print(result)
+        # print(result)
         code = result["code"]
         if code != 201:
             return {
@@ -97,7 +92,7 @@ def processRegister(register_details):
             data = result["data"]
             account_id = account_type + "_id"
             login_details = {"password" : register_details["password"], account_id : data[account_id]}
-            result = invoke_http(login_URL + username, method='POST', json = login_details)
+            result = invoke_http(login_URL + "/" + username, method='POST', json = login_details)
             code = result["code"]
             if code != 201:
                 return {
@@ -108,10 +103,41 @@ def processRegister(register_details):
             else:
                 return {
                         "code" : result["code"],
-                        "data" : result["data"]
+                        "data" : result["data"],
+                        "account_details" : account_details_results
                     }
 
+@app.route("/register/verify_grecaptcha", methods=["POST"])
+def verify_grecaptcha():
+    try:
+        headers = request.headers
+        params = {}
+        if request.method == "POST":
+            if request.is_json:
+                params = request.json
+            else:
+                params = request.args
 
+            method = 'verify_grecaptcha'
+            # print(params)
+            token = params["response"]
+            # print(token)
+            key = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
+            url = 'https://www.google.com/recaptcha/api/siteverify'
+            recaptcha_params = {'secret': key, 'response': token}
+            print(recaptcha_params)
+            response = requests.post(url, data=recaptcha_params)
+            print(response)
+            if response.status_code != 200:
+                return response.content
+
+            msg = 'success '
+            results = response.json()
+            print(results)
+            return jsonify(results), 200
+
+    except Exception as error:
+        return {"error": 'Bad request. ' + str(error)}, 400
 
 if __name__ == '__main__':
-    app.run(port=5003, debug=True)              
+    app.run(host = '0.0.0.0', port=5003, debug=True)              
