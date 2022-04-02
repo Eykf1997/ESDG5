@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from os import environ
+import requests
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/loginDB'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
  
 db = SQLAlchemy(app)
@@ -157,6 +159,38 @@ def delete_login(username):
         }
     ), 404
 
+@app.route("/login/verify_grecaptcha", methods=["POST"])
+def verify_grecaptcha():
+    try:
+        headers = request.headers
+        params = {}
+        if request.method == "POST":
+            if request.is_json:
+                params = request.json
+            else:
+                params = request.args
+
+            method = 'verify_grecaptcha'
+            # print(params)
+            token = params["response"]
+            # print(token)
+            key = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
+            url = 'https://www.google.com/recaptcha/api/siteverify'
+            recaptcha_params = {'secret': key, 'response': token}
+            print(recaptcha_params)
+            response = requests.post(url, data=recaptcha_params)
+            print(response)
+            if response.status_code != 200:
+                return response.content
+
+            msg = 'success '
+            results = response.json()
+            # print(results)
+            return jsonify(results), 200
+
+    except Exception as error:
+        return {"error": 'Bad request. ' + str(error)}, 400
+
  
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(host = '0.0.0.0', port=5000, debug=True)
