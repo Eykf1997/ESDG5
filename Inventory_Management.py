@@ -14,7 +14,7 @@ CORS(app)
 
 inventory_URL = "http://localhost:5002/update_inventory"
 telegram_URL = "http://localhost:5101/telegramNotification"
-
+checkExpiryInventory_URL = "http://localhost:5002/inventory"
 #admin_notification = "http://localhost:5001/order"
 # shipping_record_URL = "http://localhost:5002/shipping_record"
 # activity_log_URL = "http://localhost:5003/activity_log"
@@ -125,7 +125,7 @@ def processInventoryManagement(order):
                     "message": "telegram_result failure sent for error handling."
                 }
             else:
-                print('\n\n-----Publishing the (order error) message with routing_key=telegram.success-----')
+                print('\n\n-----Publishing the (telegram) message with routing_key=telegram.success-----')
                 amqp_setup.channel.basic_publish(exchange=amqp_setup.exchangename, routing_key="telegram.success", 
                     body=message, properties=pika.BasicProperties(delivery_mode = 2))                 
 

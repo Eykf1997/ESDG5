@@ -13,7 +13,7 @@ import json
 app = Flask(__name__)
 CORS(app)
 
-inventory_CMS = "http://127.0.0.1:/inventory_management"
+inventory_CMS = "http://127.0.0.1:5100/inventory_management"
 order_URL = "http://localhost:5001/order"
 schedule_URL = "http://localhost:5003/schedule"
 # activity_log_URL = "http://localhost:5003/activity_log"
@@ -97,6 +97,19 @@ def processPlaceOrder(order):
 
 ############################################################# No error Proceed to Inventory Check & send telegram if stock low ################################################
     else:
+
+        # print('\n\n-----Invoking telegram bot microservice-----')
+        # print(inventory_result)
+        # bouquetDetail=inventory_result['data']['Details']
+        # bouquetQuantity=  abs(inventory_result['data']["Quantity"])
+
+        # #if else check to see whether bouquetQuantity remaining is less than 50
+        # if bouquetQuantity<50:
+        #     telegram_bot_sendtext(bouquetDetail,bouquetQuantity)
+        # # - reply from the invocation is not used;
+        # # continue even if this invocation fails
+
+
 
     ################################################################ 2. Send order to inventory management CMS ##################################################################
         print('\n\n-----Invoking inventory_URL microservice-----')
@@ -185,7 +198,7 @@ def processPlaceOrder(order):
 #     app.run(host="0.0.0.0", port=5100, debug=True)
 
 if __name__ == '__main__':
-    app.run(port=5010, debug=True)
+    app.run(port=5000, debug=True)
 
     
  # 4. Record new order

@@ -14,7 +14,7 @@ def telegram_bot_sendtext():
     telegramDetails = request.json.get("data")
     print(telegramDetails)
     send_text= 'https://api.telegram.org/bot' + bot_token +'/sendMessage?chat_id=' +bot_chatID +\
-                '&parse_mode=MarkdownV2&text='+ telegramDetails['Details'] + ' has a quantity of'+ str(telegramDetails['Quantity']) +'which is the minimum threshold of 50, enter /order to initiate order process' 
+                '&parse_mode=MarkdownV2&text='+ telegramDetails['Details'] + ' has a quantity of '+ str(telegramDetails['Quantity']) +'which is the minimum threshold of 50, enter /order to initiate order process' 
 
 
     response=requests.get(send_text)
