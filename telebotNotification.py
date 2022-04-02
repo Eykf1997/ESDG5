@@ -16,6 +16,8 @@ def telegram_bot_sendtext():
     send_text= 'https://api.telegram.org/bot' + bot_token +'/sendMessage?chat_id=' +bot_chatID +\
                 '&parse_mode=MarkdownV2&text='+ telegramDetails['Details'] + ' has a quantity of '+ str(telegramDetails['Quantity']) +'which is the minimum threshold of 50, enter /order to initiate order process' 
 
+    
+
 
     response=requests.get(send_text)
     if response:
@@ -32,6 +34,9 @@ def telegram_bot_sendtext():
     ), 404    
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
-    app.run(port=5101, debug=True)
+#     app.run(port=5101, debug=True)
+if __name__ == '__main__':
+    print("This is flask for " + os.path.basename(__file__) + ": manage orders ...")
+    app.run(host='0.0.0.0', port=5101, debug=True)
