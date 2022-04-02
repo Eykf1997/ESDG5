@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 import os, sys
-from telebotEmail import telegram_bot_sendtext
 import requests
 from invokes import invoke_http
 
@@ -14,6 +13,8 @@ app = Flask(__name__)
 CORS(app)
 
 inventory_URL = "http://localhost:5002/update_inventory"
+telegram_URL = "http://localhost:5101/telegramNotification"
+checkExpiryInventory_URL = "http://localhost:5002/inventory"
 #admin_notification = "http://localhost:5001/order"
 # shipping_record_URL = "http://localhost:5002/shipping_record"
 # activity_log_URL = "http://localhost:5003/activity_log"
@@ -96,41 +97,49 @@ def processInventoryManagement(order):
         }
 
     else:
-
-        # print('\n\n-----Publishing the (order info) message with routing_key=order.info-----')               
-        # amqp_setup.channel.basic_publish(exchange=amqp_setup.exchangename, routing_key="order.info", 
-        #     body=message)  
-############################################################# No error Proceed to Inventory Check & send telegram if stock low ################################################
-
-        print('\n\n-----Invoking telegram bot microservice-----')
-        print(inventory_result)
-        bouquetDetail=inventory_result['data']['Details']
         bouquetQuantity=  abs(inventory_result['data']["Quantity"])
 
-    #if else check to see whether bouquetQuantity remaining is less than 50
-    if bouquetQuantity<50:
-        telegram_bot_sendtext(bouquetDetail,bouquetQuantity)
-    # - reply from the invocation is not used;
-    # continue even if this invocation fails
+        if bouquetQuantity<50:
+            print('\n\n-----Invoking Telegram microservice-----')
+            telegram_result = invoke_http(telegram_URL, method="POST", json=inventory_result)
+            code = telegram_result["code"]##################################### place this at the last 
+            message = json.dumps(telegram_result)
+
+        ############################################## Error Handling #############################################################
+            if code not in range(200, 300):
+                # Inform the error microservice
+                #print('\n\n-----Invoking error microservice as order fails-----')
+                print('\n\n-----Publishing the (order error) message with routing_key=telegram.error-----')
+                amqp_setup.channel.basic_publish(exchange=amqp_setup.exchangename, routing_key="telegram.error", 
+                    body=message, properties=pika.BasicProperties(delivery_mode = 2)) 
+
+                # - reply from the invocation is not used;
+                # continue even if this invocation fails        
+                print("\nTelegram Error({:d}) published to the RabbitMQ Exchange:".format(
+                    code), telegram_result)
+
+                # 7. Return error
+                return {
+                    "code": 500,
+                    "data": {"telegram_result": telegram_result},
+                    "message": "telegram_result failure sent for error handling."
+                }
+            else:
+                print('\n\n-----Publishing the (telegram) message with routing_key=telegram.success-----')
+                amqp_setup.channel.basic_publish(exchange=amqp_setup.exchangename, routing_key="telegram.success", 
+                    body=message, properties=pika.BasicProperties(delivery_mode = 2))                 
 
 
-   
 
     return {
             "code": 201,
         "data": {
             "inventory_result": inventory_result,
-            # "shipping_result": shipping_result
+            "telegram_result": telegram_result
         }
 
     }
 
-
-# Execute this program if it is run as a main script (not by 'import')
-# if __name__ == "__main__":
-#     print("This is flask " + os.path.basename(__file__) +
-#           " for placing an order...")
-#     app.run(host="0.0.0.0", port=5100, debug=True)
 
 if __name__ == '__main__':
 

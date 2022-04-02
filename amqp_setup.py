@@ -61,6 +61,16 @@ channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='*.info'
     # bind the queue to the exchange via the key
     # 'routing_key=#' => any routing_key would be matched    
 
+
+queue_name = 'Schedule_Log'
+channel.queue_declare(queue=queue_name, durable=True)
+channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='*.schedule') 
+
+
+queue_name = 'Telegram_Log'
+channel.queue_declare(queue=queue_name, durable=True)
+channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='*.telegram') 
+
 """
 This function in this module sets up a connection and a channel to a local AMQP broker,
 and declares a 'topic' exchange to be used by the microservices in the solution.

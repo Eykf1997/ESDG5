@@ -4,6 +4,8 @@
 
 import json
 import os
+
+
 import amqp_setup
 import requests
 
@@ -19,7 +21,7 @@ API_VERSION = 'v1'
 SCOPES = ['https://mail.google.com/']
 sender_address = 'eykf123@gmail.com'
 sender_pass = 'ESDGROUP5!'
-receiver_address = 'elmer.yeo.2020@smu.edu.sg'
+
 service = Create_Service(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
 
 
@@ -46,28 +48,33 @@ def callback(channel, method, properties, body): # required signature for the ca
 
 def CustomerNotification(order):
     print("Show customer order:")
-    process_email_step(message,order)
+    process_email_step(order)
     print(order)
     
 
 
 
 
-def process_email_step(message,quantity):
+def process_email_step(order):
         print('email process start')
+       # order_cart = request.json.get('cart_item')str(order_cart["quantity"]) 
+        email = order["data"]["schedule_result"]["data"]["customer_id"]
+        receiver_address = email
+        item = order["data"]["order_result"]["data"]["item_id"]
+        quantity = order["data"]["order_result"]["data"]["order_item"].length
+        print(email)
         message = MIMEMultipart()
         message['From'] = sender_address
-        message['To'] = receiver_address
+        message['To'] = "iamyikiat@gmail.com"
         message['Subject'] = 'Lilas Blooms order request'   #The subject line
-        mail_content='Hello Customer, You have ordered' +" "+ quantity + " of "
-        #The body and the attachments for the mail
+        mail_content='Hello Customer, You have ordered' + quantity + 'of'    + item #The body and the attachments for the mail
         message.attach(MIMEText(mail_content, 'plain'))
         #Create SMTP session for sending the mail
         session = smtplib.SMTP('smtp.gmail.com', 587) #use gmail with port
         session.starttls() #enable security
         session.login(sender_address, sender_pass) #login with mail_id and password
         text = message.as_string()
-        session.sendmail(sender_address, receiver_address, text)
+        session.sendmail(sender_address, "iamyikiat@gmail.com", text)
         session.quit()
         print('Mail Sent')
 

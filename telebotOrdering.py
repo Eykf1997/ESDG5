@@ -1,3 +1,4 @@
+import requests
 import telebot
 from telebot import types
 from Google import Create_Service
@@ -33,7 +34,7 @@ class User:
 # Handle '/start' and '/help'
 @bot.message_handler(commands=['order'])
 def send_welcome(message):
-    msg = bot.reply_to(message, """\This is the vendor ordering system. What's your name?""")
+    msg = bot.reply_to(message, """This is the vendor ordering system. What's your name?""")
     bot.register_next_step_handler(msg, process_name_step)
 
 
@@ -44,7 +45,7 @@ def process_name_step(message):
         user = User(name)
         user_dict[chat_id] = user
         markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        markup.add('Sunflower', 'Moonflower','Winterflower','Summerflower','Fakeflower','Funeralflower')
+        markup.add('Willow Series', 'Blue Baby Breath Bouquet','Pastel Bouquet','Cotton Dreams','Emcantador Bouquet','Hydrangeas & Baby Breath Bouquet','Jasper Bouquet','Condolence Stands')
         msg = bot.reply_to(message, 'What would you like to order?', reply_markup=markup)
         bot.register_next_step_handler(msg, process_flower_step)
     except Exception as e:
@@ -76,25 +77,25 @@ def process_quantity_step(message):
         user.quantity = quantity
         chat_id = message.chat.id
         user = user_dict[chat_id]
-        message = MIMEMultipart()
-        message['From'] = sender_address
-        message['To'] = receiver_address
-        message['Subject'] = 'Lilas Blooms order request'   #The subject line
+        emailMessage = MIMEMultipart()
+        emailMessage['From'] = sender_address
+        emailMessage['To'] = receiver_address
+        emailMessage['Subject'] = 'Lilas Blooms order request'   #The subject line
         mail_content='Hello Vendor, I ('+user.name+ ') would like to order' +" "+ user.quantity + " of " + user.flower
         #The body and the attachments for the mail
-        message.attach(MIMEText(mail_content, 'plain'))
+        emailMessage.attach(MIMEText(mail_content, 'plain'))
         #Create SMTP session for sending the mail
         session = smtplib.SMTP('smtp.gmail.com', 587) #use gmail with port
         session.starttls() #enable security
         session.login(sender_address, sender_pass) #login with mail_id and password
-        text = message.as_string()
+        text = emailMessage.as_string()
         session.sendmail(sender_address, receiver_address, text)
+        bot.send_message(message.chat.id, 'Email Sent!')
         session.quit()
-        bot.send_message(message.chat.id,'Mail Sent')
         print('Mail Sent')
     except Exception as e:
         print(e)
-        bot.reply_to(message, 'fail quantity step')
+        bot.reply_to(message, 'fail to send email')
 
 
 
