@@ -494,7 +494,16 @@
                                 // nest your password verification here
                                     if (data.data.password === password){
                                         console.log(data.data.password, password)
+                                        sessionStorage.setItem("username", data.data.username)
                                         // window.location = "hello.html"
+                                        if (data.data.customer_id != null){
+                                            window.location = "shoppingcart.html"
+                                            sessionStorage.setItem("account_type", "customer")
+                                        } 
+                                        else{
+                                            window.location = "supply.html"
+                                            sessionStorage.setItem("account_type", "admin")
+                                        }
                                     }    
                                     else{
                                         var message = "Password incorrect"
