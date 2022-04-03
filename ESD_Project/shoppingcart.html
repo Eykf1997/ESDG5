@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script data-require="jquery@*" data-semver="3.1.1" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+
+    <title>Document</title>
+
+
+
+    <style>
+         @import url('https://fonts.googleapis.com/css?family=Quicksand:400,700');
+*, ::before, ::after { box-sizing: border-box; }
+body{
+  font-family:'Quicksand', sans-serif;
+  text-align:center;
+  line-height:1.5em;
+  
+/*   background:#E0E4CC; */
+ background: #69d2e7;
+background: -moz-linear-gradient(-45deg, #f37290 0%, #ee879f 25%, #eec3cd 46%, #f7abbd 54%, #f550d1 75%, #f0426a 100%);
+background: -webkit-linear-gradient(-45deg, #f37290 0%,#ee879f 25%,#eec3cd 46%,#f7abbd 54%,#f550d1 75%,#f0426a 100%);
+background: linear-gradient(135deg, #f37290 0%,#ee879f 25%,#eec3cd 46%,#f7abbd 54%,#f550d1 75%,#f0426a 100%);
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#69d2e7', endColorstr='#fa6900',GradientType=1 );
+background-image: url('./img/esd.jpg');
+background-position: center;
+background-attachment: fixed;
+}
+hr {
+  border:none;
+  background:#E0E4CC;
+  height:1px;
+/*   width:60%;
+  display:block;
+  margin-left:0; */
+}
+.container {
+  max-width: 800px; 
+  margin: 1em auto; 
+  background:#FFF; 
+  padding:30px;
+  border-radius:5px;
+}
+.productcont {
+  display: flex; 
+}
+.product {
+  padding:1em; 
+  border:1px solid #E0E4CC; 
+  margin-right:1em; 
+  border-radius:5px;
+}
+.cart-container {
+  border:1px solid #E0E4CC;
+  border-radius:5px;
+  margin-top:1em;
+  padding:1em;
+}
+button, input[type="submit"] { 
+    border:1px solid #FA6900; 
+    color:#fff; 
+    background: #F38630; 
+    padding:0.6em 1em;
+    font-size:1em; 
+    line-height:1; 
+    border-radius: 1.2em;
+    transition: color 0.2s ease-in-out, background 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+button:hover, button:focus, button:active, input[type="submit"]:hover, input[type="submit"]:focus, input[type="submit"]:active {
+    background: #A7DBD8;
+    border-color:#69D2E7;
+    color:#000;
+    cursor: pointer;
+}
+table {
+  margin-bottom:1em;
+  border-collapse:collapse;
+}
+table td, table th {
+  text-align:left;
+  padding:0.25em 1em;
+  border-bottom:1px solid #E0E4CC;
+}
+#carttotals {
+  margin-right:0;
+  margin-left:auto;
+}
+.cart-buttons {
+  width:auto;
+  margin-right:0;
+  margin-left:auto;
+  display:flex;
+  justify-content:flex-end;
+  padding:1em 0;
+}
+#emptycart {
+  margin-right:1em;
+}
+table td:nth-last-child(1) {
+  text-align:right;
+}
+.message {
+  border-width: 1px 0px;
+  border-style:solid;
+  border-color:#A7DBD8;
+  color:#679996;
+  padding:0.5em 0;
+  margin:1em 0;
+}
+
+
+
+
+body {
+  font-family: 'Roboto';
+}
+
+.days {
+  width: 1000px;
+}
+
+.day {
+  width: 120px;
+  height: 280px;
+  background-color: #efeff6;
+  padding:10px;
+  float:left;
+  margin-right:7px;
+  margin-bottom:5px;
+}
+
+.datelabel {
+  margin-bottom: 15px;
+}
+
+.timeslot {
+  background-color: #00c09d;
+  width: auto;
+  height: 60px;
+  color: white;
+  padding:7px;
+  margin-top: 5px;
+  font-size: 14px;
+  border-radius: 3px;
+  vertical-align: center;
+  text-align:center;
+}
+
+.timeslot:hover { 
+  background-color: #2CA893;
+  cursor: pointer;
+}
+
+
+
+    </style>
+</head>
+<body>
+    
+
+
+<div class="container"> 
+    <h1>LILAS &nbsp;BLOOMS</h1>
+    <p>Simplified 'add to cart' functionality. Uses Javascript
+    and WebStorage API/Cookies to remember cart data converted to JSON format.</p>
+    <p>Click 'Empty Cart' button to remove session cookies from browser.</p>
+    <div id="alerts"></div>
+ <div class="productcont">
+         <div class="product">
+             <h3 class="productname">Condolence Stands</h3>
+             <img src="img/condolence.PNG" class="card-img-top" alt="..." width="190" height="200">
+             <p>The perfect Valentine's Day gift</p>
+             <p class="price"></p>
+             <!-- <button class="addtocart" id="Willow Series">Add To Cart</button> -->
+             <button class="addtocart">Add To Cart</button>
+             <p class="stockcount"></p>
+
+         </div>
+         <div class="product">
+             <h3 class="productname">Jasper Bouquet</h3>
+             <img src="img/jasper.PNG" class="card-img-top" alt="..." width="190" height="200">
+             <p>On Wednesdays we wear pink</p>
+             <p class="price"></p>
+             <button class="addtocart">Add To Cart</button>
+             <p class="stockcount"></p>
+
+         </div>
+         <div class="product">
+             <h3 class="productname">Hydrangeas & Baby Breath Bouquet</h3>
+             <img src="img/hydrangea.PNG" class="card-img-top" alt="..." width="190" height="200">
+             <p>Bring the Sun to your favourite person!</p>
+             <p class="price"></p>
+             <button class="addtocart">Add To Cart</button>
+             <p class="stockcount"></p>
+
+         </div>
+  </div>
+  <div class="productcont">
+    <div class="product">
+        <h3 class="productname">Emcantador Bouquet</h3>
+        <img src="img/encantador.PNG" class="card-img-top" alt="..." width="190" height="200">
+        <p>The perfect Valentine's Day gift</p>
+        <p class="price"></p>
+        <!-- <button class="addtocart" id="Willow Series">Add To Cart</button> -->
+        <button class="addtocart">Add To Cart</button>
+        <p class="stockcount"></p>
+
+    </div>
+    <div class="product">
+        <h3 class="productname">Cotton Dreams</h3>
+        <img src="img/cotton.PNG" class="card-img-top" alt="..." width="190" height="200">
+        <p>On Wednesdays we wear pink</p>
+        <p class="price"></p>
+        <button class="addtocart">Add To Cart</button>
+        <p class="stockcount"></p>
+
+    </div>
+    <div class="product">
+        <h3 class="productname">Pastel Bouquet</h3>
+        <img src="img/pink.PNG" class="card-img-top" alt="..." width="190" height="200">
+        <p>Bring the Sun to your favourite person!</p>
+        <p class="price"></p>
+        <button class="addtocart">Add To Cart</button>
+        <p class="stockcount"></p>
+
+    </div>
+</div>
+
+         <div class="cart-container">
+           <h2>Cart</h2>
+           <table>
+             <thead>
+               <tr>
+               <th><strong>Product</strong></th>
+               <th><strong>Price</strong></th>
+             </tr>
+             </thead>
+             <tbody id="carttable">
+             </tbody>
+           </table>
+           <hr>
+
+           <h2>Timeslot</h2>
+           <div style="height:280px; width: 700px;overflow:scroll;border: 1px solid #ddd;">
+            <div class="days">
+            <div class="day">
+              <div class="datelabel"><strong>Monday</strong><br/>April 4</div>
+              <div class="timeslot" onclick="insertTimeSlot(this)">2022-04-4 09:00:00 GMT</div>
+              <div class="timeslot"onclick="insertTimeSlot(this)">2022-04-4 09:30:00 GMT</div>
+              <div class="timeslot"onclick="insertTimeSlot(this)">2022-04-4 10:00:00 GMT</div>
+            </div>
+            <div class="day">
+              <div class="datelabel"><strong>Tuesday</strong><br/>April 5</div>
+              <div class="timeslot" onclick="insertTimeSlot(this)">2022-04-5 09:00:00 GMT</div>
+              <div class="timeslot"onclick="insertTimeSlot(this)">2022-04-5 09:30:00 GMT</div>
+              <div class="timeslot"onclick="insertTimeSlot(this)">2022-04-5 10:00:00 GMT</div>
+            </div>
+            <div class="day">
+              <div class="datelabel"><strong>Wednesday</strong><br/>April 6</div>
+              <div class="timeslot" onclick="insertTimeSlot(this)">2022-04-6 09:00:00 GMT</div>
+              <div class="timeslot"onclick="insertTimeSlot(this)">2022-04-6 09:30:00 GMT</div>
+              <div class="timeslot"onclick="insertTimeSlot(this)">2022-04-6 10:00:00 GMT</div>
+            </div>
+            <div class="day">
+              <div class="datelabel"><strong>Thursday</strong><br/>April 7</div>
+              <div class="timeslot" onclick="insertTimeSlot(this)">2022-04-7 09:00:00 GMT</div>
+              <div class="timeslot"onclick="insertTimeSlot(this)">2022-04-7 09:30:00 GMT</div>
+              <div class="timeslot"onclick="insertTimeSlot(this)">2022-04-7 10:00:00 GMT</div>
+            </div>
+            <div class="day">
+              <div class="datelabel"><strong>Friday</strong><br/>April 8</div>
+              <div class="timeslot" onclick="insertTimeSlot(this)">2022-04-8 09:00:00 GMT</div>
+              <div class="timeslot"onclick="insertTimeSlot(this)">2022-04-8 09:30:00 GMT</div>
+              <div class="timeslot"onclick="insertTimeSlot(this)">2022-04-8 10:00:00 GMT</div>
+            </div>
+            <div class="day">
+              <div class="datelabel"><strong>Saturday</strong><br/>April 9</div>
+              <div class="timeslot" onclick="insertTimeSlot(this)">2022-04-9 09:00:00 GMT</div>
+              <div class="timeslot"onclick="insertTimeSlot(this)">2022-04-9 09:30:00 GMT</div>
+              <div class="timeslot"onclick="insertTimeSlot(this)">2022-04-9 10:00:00 GMT</div>
+            </div>  
+            <div class="day">
+              <div class="datelabel"><strong>Sunday</strong><br/>April 10</div>
+              <div class="timeslot" onclick="insertTimeSlot(this)">2022-04-10 09:00:00 GMT</div>
+              <div class="timeslot"onclick="insertTimeSlot(this)">2022-04-10 09:30:00 GMT</div>
+              <div class="timeslot"onclick="insertTimeSlot(this)">2022-04-10 10:00:00 GMT</div>
+            </div>
+            </div>
+          </div>
+
+
+
+
+           <table id="carttotals">
+             <tr>
+               <td><strong>Items</strong></td>
+               <td><strong>Total</strong></td>
+             </tr>
+             <tr>
+               <td>x <span id="itemsquantity">0</span></td>
+              
+               <td>$<span id="total">0</span></td>
+             </tr></table>
+ 
+             
+           <div class="cart-buttons">  
+             <button id="emptycart">Empty Cart</button>
+             <button id="checkout">Checkout</button>
+           </div>
+         </div>
+ </div>
+
+ <script src="https://js.stripe.com/v3/"></script>
+
+ <script>
+fetch('http://127.0.0.1:5002/inventory', {
+  method: "get",
+ // body: JSON.stringify(_data),
+  headers: {"Content-type": "application/json; charset=UTF-8"}
+})
+.then(response => response.json()) 
+.then(response => {
+  inventorydata = response.data.inventory
+  console.log(inventorydata)
+  stocklistings = document.getElementsByClassName('stockcount')
+  console.log(stocklistings)
+  for (let i=0; i<stocklistings.length; i++){
+    stock = inventorydata[i]['Quantity']
+    // if(stock == 0){
+      
+    //   console.log(addToCart)
+    //   addtocart[i].disabled = true
+    // }
+    stocklistings[i].innerText = 'Stock: ' + stock
+  }
+
+}
+
+)
+.catch(err => console.log(err));
+
+fetch('http://127.0.0.1:5005/payment', {
+    method: "GET",  
+    //body: JSON.stringify(_data),
+    headers: {"Content-type": "application/json; charset=UTF-8"}
+  })
+    .then(response => response.json())
+    .then(response => {
+        console.log(response.data)
+        data = response.data.products.data
+        pricelistings = document.getElementsByClassName('price')
+        console.log(pricelistings)
+        for (let i=0; i<pricelistings.length; i++){
+          productid = data[i]['id']
+          console.log(productid)
+          price = data[i]['unit_amount'] / 100
+          price = price.toFixed(2)
+          console.log(price)
+          pricelistings[i].innerText = '$' + price
+        }
+    })
+    .then(json => console.log(json))
+    .catch(err => console.log(err));
+
+var buybutton = document.getElementById('checkout')
+buybutton.addEventListener('click',stripepay)
+
+
+
+
+function stripepay(i){
+  alert("yes")
+  customer_id = localStorage.getItem('customer_id')
+  fetch('http://127.0.0.1:5010/customer', {
+method: "GET",
+//body: JSON.stringify(_data),
+headers: {"Content-type": "application/json; charset=UTF-8"}
+})
+.then(response => response.json()) 
+// .then(json => console.log(json))
+.then(response => {
+    console.log(data); // JSON data parsed by `data.json()` call
+    customers = response.data.customers
+    customer_email = ""
+    for (customer of customers){
+      if (customer['customer_id'] == customer_id){
+        customer_email = customer['email']
+      }
+    }
+    alert(customer_email)
+    if(sessionStorage.getItem('cart')) {
+        //get cart data & parse to array
+        var cart = JSON.parse(sessionStorage.getItem('cart'));}
+    console.log(cart)
+    products = {}
+    
+    
+    output = {}
+    // output['timeslot'] = timeconfirmed
+    output = {
+      "customer_id" : customer_id,
+      "cart_item":[],
+      "schedule":[{
+        "timeslot": timeconfirmed,
+        "Customer_ID": customer_id,
+        "Email": customer_email
+      }]
+    }
+    products = {}
+    for (productadded of cart){
+      productadded = JSON.parse(productadded)
+      if(productadded.productname in products){
+        products[productadded.productname]+= 1
+      }
+      else{
+        products[productadded.productname] = 1
+      }
+    }
+    console.log(products)
+    pay(products)
+    for (prod in products){
+      item = {}
+      item['Item_Name'] = prod
+      item['quantity'] = products[prod]
+      for(itemname of inventorydata){
+        if (prod == itemname['Item_Name']){
+          item['Item_Id'] = itemname['Item_Id']
+        }
+      }
+      output['cart_item'].push(item)
+    }
+    console.log(output)
+
+    output = JSON.stringify(output)
+    localStorage.setItem("order_details", output)
+  })
+.catch(err => console.log(err));
+  timeslots = document.getElementsByClassName('timeslot')
+  for(time of timeslots){
+    // console.log(time)
+    if (time.style.backgroundColor == 'rgb(0, 192, 157)'){
+      timeconfirmed = time.innerText
+    }
+  }
+  console.log(timeconfirmed)
+  // fetch('http://127.0.0.1:5003/schedule', {
+  // method: "POST",
+  // body: JSON.stringify(_data),
+  // headers: {"Content-type": "application/json; charset=UTF-8"}
+  // })
+  // .then(response => response.json()) 
+  // .then(json => console.log(json))
+  // .catch(err => console.log(err));
+
+ 
+    // for (productadded of cart){
+    //   productadded = JSON.parse(productadded)
+    //   if(productadded.productname in products){
+    //     products[productadded.productname][0]+= 1
+    //   }
+    //   else{
+    //     products[productadded.productname] = [1]
+    //   }
+    // }
+    // console.log(products)
+
+    // // item_ids = 
+    // // for(itemname in products){
+    // //   if (itemname == )
+    // // }
+    // for (itemname in products){
+    //   // console.log(itemname)
+    //   for(item of inventorydata){
+    //     // console.log(item)
+    //     if(itemname == item['Item_Name'] && products[itemname].length < 2){
+    //       products[itemname].push(item['Item_Id'])
+    //     }
+    //   }
+    // }
+    // console.log(products)
+  
+
+   
+}
+
+
+
+function pay(products){
+alert("hi")
+  fetch('http://localhost:5005/stripe_pay',{
+        method:"POST",
+        headers:{
+            'Content-Type':'application/json',
+        }
+        ,
+        // body:JSON.stringify({
+        //     'quantity':quantity,
+        //     'product': product
+        // })
+        body:JSON.stringify(products)
+    })
+    .then((result) => { return result.json(); })
+    .then((data) => {
+        var stripe = Stripe(data.checkout_public_key);
+        stripe.redirectToCheckout({
+            sessionId: data.checkout_session_id
+        }).then(function (result) {
+        });
+    })
+
+
+}
+
+
+function getTimeSlot(){
+fetch('http://127.0.0.1:5003/schedule', {
+method: "GET",
+//body: JSON.stringify(_data),
+headers: {"Content-type": "application/json; charset=UTF-8"}
+})
+.then(response => response.json()) 
+// .then(json => console.log(json))
+.then(data => {
+    console.log(data); // JSON data parsed by `data.json()` call
+    console.log(data.data.schedule)
+    var time = document.getElementsByClassName("timeslot");
+    // console.log(time)
+    for (var i = 0; i < time.length; i++){
+      for (e of data.data.schedule){
+        // console.log(time[i].innerText)
+        // console.log(e.timeslot)
+        if (Date.parse(time[i].innerText) == Date.parse(e.timeslot)){
+          // console.log(time[i])
+          time[i].style.backgroundColor = 'tomato'
+          time[i].style.pointerEvents = 'none'
+        }
+      }
+    }
+//     for( e in data.data.schedule) {
+//       //alert(Date.parse(data.data.schedule[i].timeslot))
+      
+//     // var time = document.getElementsByClassName("timeslot");
+//     for (var i = 0; i < time.length; i++) {  
+//       // console.log(Date.parse(time[i].innerText))
+//       // console.log(Date.parse(data.data.schedule[e].timeslot))
+//       if (Date.parse(data.data.schedule[e].timeslot) === Date.parse(time[i].innerText)){
+//         time[i].style.backgroundColor = 'tomato';
+//         time[i].onclick = '';
+//       }
+// }
+// }
+  })
+.catch(err => console.log(err));
+}
+getTimeSlot()
+
+
+function insertTimeSlot(data){
+  timeslots = document.getElementsByClassName('timeslot')
+  for(time of timeslots){
+    // console.log(time)
+    if(time.style.backgroundColor != 'tomato')
+    time.style.backgroundColor = '#00c09d'
+  }
+  data.style.backgroundColor = 'orange';
+  // timing = data.innerText
+  // console.log(data)
+//   let _data = 
+//   {
+//    "customer_id": "gleena",
+//    "cart_item": [{
+//       "Item_Id": 1,
+//       "quantity": 1
+//    },
+//    {
+//       "Item_Id": 2,
+//       "quantity": 1
+//    }],
+//    "schedule":[{
+//       "order_id": 1,
+//       "timeslot": timing,
+//       "Customer_ID": "02",
+//       "Email": "yi@gmail"
+//    }]
+// }
+
+// fetch('http://127.0.0.1:5003/schedule', {
+//   method: "POST",
+//   body: JSON.stringify(_data),
+//   headers: {"Content-type": "application/json; charset=UTF-8"}
+// })
+// .then(response => response.json()) 
+// .then(json => console.log(json))
+// .catch(err => console.log(err));
+}
+// $(document).ready(function() {
+//   // Fetch our events
+//   $.ajax({
+//       url: "http://localhost:5002/inventory/I01",
+//     method: "GET"
+
+     
+    
+//   }).done(function(response) {
+//     // Parse our events into an event object for FullCalendar
+//     console.log(response)
+//   });
+// });
+
+
+
+// $(document).ready(function() {
+//   // Fetch our events
+//   $.ajax({
+//     url: "http://127.0.0.1:5000/inventory/I01",
+//     method: "PUT",
+//     datatype: "json",
+//     contentType: 'application/json',
+//     crossDomain: true,
+//     data: {   
+//      "Quantity": 23
+//     }
+     
+    
+//   }).done(function(response) {
+//     // Parse our events into an event object for FullCalendar
+//     console.log(response)
+//   });
+// });
+
+
+
+
+// $(document).ready(function() {
+//   // Fetch our events
+//   $.ajax({
+    
+//     url: "http://127.0.0.1:5000/place_order",
+//     method: "POST",
+//     datatype: "json",
+//     contentType: 'application/json',
+//     //crossDomain: true,
+//     data: {
+//    "customer_id": "yikiat",
+//    "cart_item": [{
+//       "Items_ID": "I01",
+//       "quantity": 1
+//    },
+//    {
+//       "Items_ID": "I02",
+//       "quantity": 1
+//    }]
+// }
+     
+    
+//   }).done(function(response) {
+//     // Parse our events into an event object for FullCalendar
+//     console.log(response)
+//   });
+// });
+
+
+
+let _data = {
+   "customer_id": "yikiat",
+   "cart_item": [{
+      "Items_ID": "I01",
+      "quantity": 1
+   },
+   {
+      "Items_ID": "I02",
+      "quantity": 1
+   }]
+}
+
+fetch('http://127.0.0.1:5000/place_order', {
+  method: "POST",
+  body: JSON.stringify(_data),
+  headers: {"Content-type": "application/json; charset=UTF-8"}
+})
+.then(response => response.json()) 
+.then(json => console.log(json))
+.catch(err => console.log(err));
+
+
+
+
+
+//fetch
+
+
+
+
+
+     /* get cart total from session on load */
+updateCartTotal();
+
+/* button event listeners */
+document.getElementById("emptycart").addEventListener("click", emptyCart);
+var btns = document.getElementsByClassName('addtocart');
+console.log(btns)
+for (var i = 0; i < btns.length; i++) {
+    //   if(stock == 0){
+      
+    //   console.log(addToCart)
+    //   addtocart[i].disabled = true
+    // }
+    btns[i].addEventListener('click', function() {addToCart(this);});
+    
+}
+
+/* ADD TO CART functions */
+
+function addToCart(elem) {
+    //init
+    var sibs = [];
+    var getprice;
+    var getproductName;
+    var cart = [];
+     var stringCart;
+    //cycles siblings for product info near the add button
+    while(elem = elem.previousSibling) {
+        if (elem.nodeType === 3) continue; // text node
+        if(elem.className == "price"){
+            getprice = elem.innerText;
+        }
+        if (elem.className == "productname") {
+            getproductName = elem.innerText;
+        }
+        sibs.push(elem);
+    }
+    //create product object
+    var product = {
+        productname : getproductName,
+        price : getprice
+    };
+    //convert product data to JSON for storage
+    var stringProduct = JSON.stringify(product);
+    /*send product data to session storage */
+    
+    if(!sessionStorage.getItem('cart')){
+        //append product JSON object to cart array
+        cart.push(stringProduct);
+        //cart to JSON
+        stringCart = JSON.stringify(cart);
+        //create session storage cart item
+        sessionStorage.setItem('cart', stringCart);
+        addedToCart(getproductName);
+        updateCartTotal();
+    }
+    else {
+        //get existing cart data from storage and convert back into array
+       cart = JSON.parse(sessionStorage.getItem('cart'));
+        //append new product JSON object
+        cart.push(stringProduct);
+        //cart back to JSON
+        stringCart = JSON.stringify(cart);
+        //overwrite cart data in sessionstorage 
+        sessionStorage.setItem('cart', stringCart);
+        addedToCart(getproductName);
+        updateCartTotal();
+    }
+}
+/* Calculate Cart Total */
+function updateCartTotal(){
+    //init
+    var total = 0;
+    var price = 0;
+    var items = 0;
+    var productname = "";
+    var carttable = "";
+    if(sessionStorage.getItem('cart')) {
+        //get cart data & parse to array
+        var cart = JSON.parse(sessionStorage.getItem('cart'));
+        console.log(cart)
+        //get no of items in cart 
+        items = cart.length;
+        //loop over cart array
+        for (var i = 0; i < items; i++){
+            //convert each JSON product in array back into object
+            var x = JSON.parse(cart[i]);
+            //get property value of price
+            price = parseFloat(x.price.split('$')[1]);
+            productname = x.productname;
+            //add price to total
+            carttable += "<tr><td>" + productname + "</td><td>$" + price.toFixed(2) + "</td></tr>";
+            total += price;
+        }
+    }
+    //update total on website HTML
+    document.getElementById("total").innerHTML = total.toFixed(2);
+    //insert saved products to cart table
+    document.getElementById("carttable").innerHTML = carttable;
+    //update items in cart on website HTML
+    document.getElementById("itemsquantity").innerHTML = items;
+}
+//user feedback on successful add
+function addedToCart(pname) {
+  var message = pname + " was added to the cart";
+  var alerts = document.getElementById("alerts");
+  alerts.innerHTML = message;
+  if(!alerts.classList.contains("message")){
+     alerts.classList.add("message");
+  }
+}
+/* User Manually empty cart */
+function emptyCart() {
+    //remove cart session storage object & refresh cart totals
+    if(sessionStorage.getItem('cart')){
+        sessionStorage.removeItem('cart');
+        updateCartTotal();
+      //clear message and remove class style
+      var alerts = document.getElementById("alerts");
+      alerts.innerHTML = "";
+      if(alerts.classList.contains("message")){
+          alerts.classList.remove("message");
+      }
+    }
+}
+ </script>
+
+
+</body>
+</html>

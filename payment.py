@@ -12,18 +12,19 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle': 299}
 #db = SQLAlchemy(app)
 
 CORS(app)
+# app = Flask(__name__)
 
 app.config['STRIPE_PUBLIC_KEY'] = 'pk_test_51KeFRIImsLnkA7wnfZXAD9cYt0FZjFMF89IrHfB42LRqC1oUe4LXuR4DajAOlS7tmJdpFe2bBndwekrsmQ2U9xjO00beVTKajW'
 app.config['STRIPE_SECRET_KEY'] = 'sk_test_51KeFRIImsLnkA7wnOnnKaXjxyEmQ6ArFQgdnzwZFv8fKiou5WioQsMffnfyqnnFv5UvILdds4QC6fEf70er848c200fLAoAe5V'
 
 stripe.api_key = app.config['STRIPE_SECRET_KEY']
 
-@app.route('/', methods =["GET", "POST"])
-def index():
-    return render_template('index.html')
+# @app.route('/', methods =["GET", "POST"])
+# def index():
+#     return render_template('index.html')
 
 
-@app.route("/getprice")
+@app.route("/payment")
 def get_all():
     data= stripe.Price.list()
     print(data)
@@ -52,21 +53,21 @@ def stripe_pay():
     newdata = []
     for product in importeddata:
         item  = {}
-        if product != 'timeslot':
-            if product == 'Condolence Stands':
-                item['price'] = 'price_1Kjlw2ImsLnkA7wnIQzdEG8e'
-            elif product == 'Jasper Bouquet':
-                item['price'] = 'price_1Kjlv8ImsLnkA7wnfXAvAnvE'
-            elif product == 'Hydrangeas & Baby Breath Bouquet':
-                item['price'] = 'price_1Kjlu6ImsLnkA7wnZ9a6VJ8t'
-            elif product == 'Emcantador Bouquet':
-                item['price'] = 'price_1KjltPImsLnkA7wnsFxqF4SO'
-            elif product == 'Cotton Dreams':
-                item['price'] = 'price_1KjlsjImsLnkA7wn7oXidVDY'
-            elif product == 'Pastel Bouquet':
-                item['price'] = 'price_1KjlrgImsLnkA7wn6MRKMyXG'
-            item['quantity'] = importeddata[product][0]
-            newdata.append(item)
+        # if product != 'timeslot' or product !='customer_id':
+        if product == 'Condolence Stands':
+            item['price'] = 'price_1Kjlw2ImsLnkA7wnIQzdEG8e'
+        elif product == 'Jasper Bouquet':
+            item['price'] = 'price_1Kjlv8ImsLnkA7wnfXAvAnvE'
+        elif product == 'Hydrangeas & Baby Breath Bouquet':
+            item['price'] = 'price_1Kjlu6ImsLnkA7wnZ9a6VJ8t'
+        elif product == 'Emcantador Bouquet':
+            item['price'] = 'price_1KjltPImsLnkA7wnsFxqF4SO'
+        elif product == 'Cotton Dreams':
+            item['price'] = 'price_1KjlsjImsLnkA7wn7oXidVDY'
+        elif product == 'Pastel Bouquet':
+            item['price'] = 'price_1KjlrgImsLnkA7wn6MRKMyXG'
+        item['quantity'] = importeddata[product]
+        newdata.append(item)
     print(newdata)
     # quantity = data['quantity']
     # product = data['product']
@@ -142,12 +143,12 @@ def stripe_webhook():
             item = {}
             item['product'] = product['description']
             item['quantity'] = product['quantity']
-            for i in importeddata:
-                if product['description'] == i:
-                    item['Item_Id'] = importeddata[i][1]
+            # for i in importeddata:
+            #     if product['description'] == i:
+            #         item['Item_Id'] = importeddata[i][1]
             cartitem.append(item)
         data['cart_item'] = cartitem
-        data['schedule'][0]['timeslot'] = importeddata['timeslot']
+        # data['schedule'][0]['timeslot'] = importeddata['timeslot']
 
         # product = line_items['data'][0]['description']
         # quantity = line_items['data'][0]['quantity']
