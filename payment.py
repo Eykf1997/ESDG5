@@ -5,6 +5,13 @@ from flask_cors import CORS
 import stripe
 
 app = Flask(__name__)
+# app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle': 299}
+
+#db = SQLAlchemy(app)
+
+CORS(app)
 
 app.config['STRIPE_PUBLIC_KEY'] = 'pk_test_51KeFRIImsLnkA7wnfZXAD9cYt0FZjFMF89IrHfB42LRqC1oUe4LXuR4DajAOlS7tmJdpFe2bBndwekrsmQ2U9xjO00beVTKajW'
 app.config['STRIPE_SECRET_KEY'] = 'sk_test_51KeFRIImsLnkA7wnOnnKaXjxyEmQ6ArFQgdnzwZFv8fKiou5WioQsMffnfyqnnFv5UvILdds4QC6fEf70er848c200fLAoAe5V'

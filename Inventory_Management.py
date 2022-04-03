@@ -14,9 +14,12 @@ from datetime import date,datetime
 app = Flask(__name__)
 CORS(app)
 
-inventory_URL = "http://localhost:5002/update_inventory"
-telegram_URL = "http://localhost:5101/telegramNotificationDate"
-bouquet_URL = "http://localhost:5002/backendInventoryManagement"
+# inventory_URL = "http://localhost:5002/update_inventory"
+inventory_URL = os.environ.get("inventory_URL")
+# telegram_URL = "http://localhost:5101/telegramNotificationDate"
+telegram_URL = os.environ.get("telegram_URL")
+# bouquet_URL = "http://localhost:5002/backendInventoryManagement"
+bouquet_URL = os.environ.get("bouquet_URL")
 #admin_notification = "http://localhost:5001/order"
 # shipping_record_URL = "http://localhost:5002/shipping_record"
 # activity_log_URL = "http://localhost:5003/activity_log"
@@ -468,10 +471,13 @@ for x in currentInventoryDetails["data"]["inventory"]:
                     body=message, properties=pika.BasicProperties(delivery_mode = 2))
 
 
+# if __name__ == '__main__':
+
+#     app.run(port=5100, debug=True)
 if __name__ == '__main__':
-
-    app.run(port=5100, debug=True)
-
+    print("This is flask " + os.path.basename(__file__) +
+        " for placing an order...")
+    app.run(host="0.0.0.0", port=5100, debug=True)
     
     # Notes for the parameters:
     # - debug=True will reload the program automatically if a change is detected;

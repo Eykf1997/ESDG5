@@ -7,13 +7,12 @@ from invokes import invoke_http
 from datetime import datetime
 import json
 
-
-import simplejson as json
+#import simplejson as json
 from decimal import Decimal
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/Inventory'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("inventory_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -31,7 +30,7 @@ class Inventory(db.Model):
     Price = db.Column(db.DateTime, nullable=False)
     
 
-    def init(self, Item_Id, Quantity, Details, Item_Name, Expiry_Date,Price):
+    def __init__(self, Item_Id, Quantity, Details, Item_Name, Expiry_Date,Price):
         self.Item_Id = Item_Id
         self.Quantity = Quantity
         self.Details = Details

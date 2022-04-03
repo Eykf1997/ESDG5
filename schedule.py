@@ -8,7 +8,7 @@ import json
 
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/schedule'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("schedule_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -51,7 +51,7 @@ def get_all():
     return jsonify(
         {
             "code": 404,
-            "message": "There are no schedule."
+            "message": "There are error in schedue."
         }
     ), 404
 

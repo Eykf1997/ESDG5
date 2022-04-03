@@ -1,0 +1,258 @@
+version: "3.8"
+
+volumes:
+  rabbitmq_data:
+
+services:
+
+
+
+  ###############################################
+  # Inventory: The inventory simple microservice
+  ###############################################
+  inventory:
+    build:
+      context: ./
+      dockerfile: inventory.Dockerfile
+    image: yikiat/inventory:1.0
+    environment:
+      inventory_URL: mysql+mysqlconnector://is213@host.docker.internal:3306/inventory
+    ports:
+      - "5002:5002"
+
+
+  #################################
+  # RabbitMQ: The messaging broker
+  #################################
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: esd-rabbit
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+      
+ 
+  #################################
+  # error: error microservice
+  #################################
+  error:
+    build:
+      context: ./
+      dockerfile: error.Dockerfile
+    image: yikiat/error:1.0
+    restart: always
+    depends_on:
+      - rabbitmq
+    environment:
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
+      PYTHONUNBUFFERED: 1
+       
+  #################################
+  # activity_log: activity_log microservice
+  #################################
+  activity_log:
+    build:
+      context: ./
+      dockerfile: activity_log.Dockerfile
+    image: yikiat/activity_log:1.0
+    restart: always
+    depends_on:
+      - rabbitmq
+    environment:
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
+      PYTHONUNBUFFERED: 1
+           
+  #################################
+  # Customer_notification: Customer_notification microservice
+  #################################
+  Customer_notification:
+    build:
+      context: ./
+      dockerfile: Customer_notification.Dockerfile
+    image: yikiat/customer_notification:1.0
+    restart: always
+    depends_on:
+      - rabbitmq
+    environment:
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
+      PYTHONUNBUFFERED: 1
+             
+  #################################
+  # Admin_notification: Admin_notification microservice
+  #################################
+  Admin_notification:
+    build:
+      context: ./
+      dockerfile: Admin_notification.Dockerfile
+    image: yikiat/admin_notification:1.0
+    restart: always
+    depends_on:
+      - rabbitmq
+    environment:
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
+      PYTHONUNBUFFERED: 1
+
+
+   ###############################################
+  # place_order: The place_order complex microservice
+  ###############################################
+  place_order:
+    build:
+      context: ./
+      dockerfile: place_order.Dockerfile
+    image: yikiat/place_order:1.0
+    depends_on:
+      - Inventory_Management
+      - payment
+      - Customer_notification
+      - Admin_notification
+      - order
+    environment:
+      inventory_CMS: http://Inventory_Management:5100/inventory_management 
+      order_URL: http://order:5001/order 
+      schedule_URL: http://schedule:5003/schedule
+    ports:
+      - "5110:5110"
+
+  ###############################################
+  # Inventory_Management: The Inventory_Management complex microservice
+  ###############################################
+  Inventory_Management:
+    build:
+      context: ./
+      dockerfile: Inventory_Management.Dockerfile
+    image: yikiat/inventory_management:1.0
+    depends_on:
+      - inventory
+      - telebotNotification
+      - activity_log
+      - error
+    environment:
+      inventory_URL: http://inventory:5002/update_inventory 
+      telegram_URL: http://telebotNotification:5101/telegramNotificationDate 
+      bouquet_URL: http://inventory:5002/backendInventoryManagement
+    ports:
+      - "5100:5100"
+  
+
+
+
+  #################################
+  # Login: The Login microservice
+  #################################
+  login:
+    build:
+      context: ./
+      dockerfile: login.Dockerfile
+    image: yikiat/login:1.0
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/logindb
+    ports:
+      - "5000:5000"
+
+  #################################
+  # Customer: The Customer microservice
+  #################################
+  customer:
+    build:
+      context: ./
+      dockerfile: customer.Dockerfile
+    image: yikiat/customer:1.0
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/customerdb
+
+  #################################
+  # Admin: The Admin microservice
+  #################################
+  admin:
+    build:
+      context: ./
+      dockerfile: admin.Dockerfile
+    image: yikiat/admin:1.0
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/admindb
+ 
+  ###############################################
+  # register: The Register complex microservice
+  ###############################################
+  register:
+    build:
+      context: ./
+      dockerfile: register.Dockerfile
+    image: yikiat/register:1.0
+    depends_on:
+      - login
+      - customer
+      - admin
+    environment:
+      login_URL: http://login:5000/login
+      customer_URL: http://customer:5010/customer
+      admin_URL: http://admin:5012/admin
+    ports:
+      - "5011:5011"
+ 
+  ###############################################
+  # Order: The Order simple microservice
+  ###############################################
+  order:
+    build:
+      context: ./
+      dockerfile: order.Dockerfile
+    image: yikiat/order:1.0
+    environment:
+      order_URL: mysql+mysqlconnector://is213@host.docker.internal:3306/order
+    ports:
+      - "5001:5001"      
+
+ 
+  ###############################################
+  # payment: The payment simple microservice
+  ###############################################
+  payment:
+    build:
+      context: ./
+      dockerfile: payment.Dockerfile
+    image: yikiat/payment:1.0
+    ports:
+      - "5005:5005"      
+
+  ###############################################
+  # Schedule: The Schedule simple microservice
+  ###############################################
+  schedule:
+    build:
+      context: ./
+      dockerfile: schedule.Dockerfile
+    image: yikiat/schedule:1.0
+    environment:
+      schedule_URL: mysql+mysqlconnector://is213@host.docker.internal:3306/schedule
+    ports:
+      - "5003:5003"
+
+
+
+ ###############################################
+  # telebotNotification: The telebotNotification simple microservice
+  ###############################################
+  telebotNotification:
+    build:
+      context: ./
+      dockerfile: telebotNotification.Dockerfile
+    image: yikiat/telebotnotification:1.0
+    ports:
+      - "5101:5101"   
+
+
+

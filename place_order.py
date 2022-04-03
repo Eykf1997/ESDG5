@@ -11,11 +11,22 @@ import pika
 import json
 
 app = Flask(__name__)
+app = Flask(__name__)
+# app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('dbURL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle': 299}
+
+#db = SQLAlchemy(app)
+
 CORS(app)
 
-inventory_CMS = "http://127.0.0.1:5100/inventory_management"
-order_URL = "http://localhost:5001/order"
-schedule_URL = "http://localhost:5003/schedule"
+
+# inventory_CMS = "http://127.0.0.1:5100/inventory_management"
+inventory_CMS = os.environ.get("inventory_CMS")
+# order_URL = "http://localhost:5001/order"
+order_URL = os.environ.get("order_URL")
+# schedule_URL = "http://localhost:5003/schedule"
+schedule_URL = os.environ.get("schedule_URL")
 # activity_log_URL = "http://localhost:5003/activity_log"
 # error_URL = "http://localhost:5004/error"
 
@@ -231,8 +242,13 @@ def processPlaceOrder(order):
 #           " for placing an order...")
 #     app.run(host="0.0.0.0", port=5100, debug=True)
 
+# if __name__ == '__main__':
+#     app.run(port=5110, debug=True)
+
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    print("This is flask " + os.path.basename(__file__) +
+        " for placing an order...")
+    app.run(host="0.0.0.0", port=5110, debug=True)
 
     
  # 4. Record new order
